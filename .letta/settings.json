@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(lib\\presentation\\screens/**)",
+      "Edit(lib\\presentation\\widgets/**)",
+      "Edit(lib\\data\\services/**)",
+      "Bash(flutter pub get)"
+    ]
+  }
+}
