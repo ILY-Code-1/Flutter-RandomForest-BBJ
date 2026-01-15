@@ -4,7 +4,10 @@
       "Edit(lib\\presentation\\screens/**)",
       "Edit(lib\\presentation\\widgets/**)",
       "Edit(lib\\data\\services/**)",
-      "Bash(flutter pub get)"
+      "Bash(flutter pub get)",
+      "Edit(**)",
+      "Write(**)",
+      "Bash(dart run generate_template.dart)"
     ]
   }
 }

@@ -3,6 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:excel/excel.dart';
+import 'dart:io';
 import '../data/models/prediction_model.dart';
 import '../data/services/database_service.dart';
 import '../data/services/random_forest_service.dart';
@@ -19,6 +22,10 @@ class PredictionController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isEditMode = false.obs;
   final RxInt editingIndex = (-1).obs;
+
+  // Excel related variables
+  final RxString excelFileName = ''.obs;
+  final RxList<Map<String, dynamic>> excelData = <Map<String, dynamic>>[].obs;
 
   // Form controllers
   final idNasabahController = TextEditingController();
@@ -384,5 +391,204 @@ class PredictionController extends GetxController {
   String getTempIdNasabah(int index) {
     if (index < 0 || index >= tempIdNasabahList.length) return '';
     return tempIdNasabahList[index];
+  }
+
+  // Excel Import Methods
+  Future<void> pickExcelFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx', 'xls'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final filePath = result.files.single.path!;
+        excelFileName.value = result.files.single.name;
+        await _readExcelFile(filePath);
+      }
+    } catch (e) {
+      _showError('Gagal memilih file: $e');
+    }
+  }
+
+  Future<void> _readExcelFile(String filePath) async {
+    isLoading.value = true;
+    try {
+      final bytes = File(filePath).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+
+      excelData.clear();
+
+      for (var table in excel.tables.keys) {
+        final sheet = excel.tables[table];
+        if (sheet == null) continue;
+
+        // Skip header row, start from row 1 (index 1)
+        for (var i = 1; i < sheet.maxRows; i++) {
+          final row = sheet.rows[i];
+          
+          // Check if row has enough columns and is not empty
+          if (row.length < 9) continue;
+          
+          // Skip if ID Nasabah is empty
+          if (row[0]?.value == null) continue;
+
+          try {
+            final data = {
+              'idNasabah': _getCellValue(row[0]),
+              'usia': _parseToInt(_getCellValue(row[1])),
+              'jenisKelamin': _getCellValue(row[2]),
+              'pekerjaan': _getCellValue(row[3]),
+              'pendapatanBulanan': _parseToDouble(_getCellValue(row[4])),
+              'frekuensiTransaksi': _parseToInt(_getCellValue(row[5])),
+              'saldoRataRata': _parseToDouble(_getCellValue(row[6])),
+              'lamaMenjadiNasabah': _parseToInt(_getCellValue(row[7])),
+              'statusNasabah': _getCellValue(row[8]),
+            };
+
+            // Validate required fields
+            if (_validateExcelRow(data)) {
+              excelData.add(data);
+            }
+          } catch (e) {
+            // Skip invalid rows
+            continue;
+          }
+        }
+      }
+
+      if (excelData.isEmpty) {
+        _showError('Tidak ada data valid yang ditemukan dalam file Excel');
+        excelFileName.value = '';
+      } else {
+        Get.snackbar(
+          'Berhasil',
+          '${excelData.length} data nasabah berhasil dibaca',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      _showError('Gagal membaca file Excel: $e');
+      excelFileName.value = '';
+      excelData.clear();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  String _getCellValue(Data? cell) {
+    if (cell == null || cell.value == null) return '';
+    return cell.value.toString().trim();
+  }
+
+  int _parseToInt(String value) {
+    if (value.isEmpty) return 0;
+    return int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+  }
+
+  double _parseToDouble(String value) {
+    if (value.isEmpty) return 0.0;
+    return double.tryParse(value.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+  }
+
+  bool _validateExcelRow(Map<String, dynamic> data) {
+    if (data['idNasabah'].toString().isEmpty) return false;
+    if (data['usia'] == 0) return false;
+    if (data['jenisKelamin'].toString().isEmpty) return false;
+    if (data['pekerjaan'].toString().isEmpty) return false;
+    if (data['pendapatanBulanan'] == 0) return false;
+    if (data['frekuensiTransaksi'] == 0) return false;
+    if (data['saldoRataRata'] == 0) return false;
+    if (data['lamaMenjadiNasabah'] == 0) return false;
+    if (data['statusNasabah'].toString().isEmpty) return false;
+    
+    // Validate gender
+    final gender = data['jenisKelamin'].toString();
+    if (gender != 'Laki-laki' && gender != 'Perempuan') return false;
+    
+    // Validate status
+    final status = data['statusNasabah'].toString();
+    if (status != 'Aktif' && status != 'Tidak Aktif') return false;
+    
+    return true;
+  }
+
+  Future<void> submitExcelPrediction() async {
+    if (excelData.isEmpty) {
+      _showError('Tidak ada data untuk diproses');
+      return;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final now = DateTime.now();
+      final sessionId = now.millisecondsSinceEpoch.toString();
+
+      List<NasabahModel> hasilPrediksi = [];
+
+      for (int i = 0; i < excelData.length; i++) {
+        final data = excelData[i];
+        
+        final input = NasabahInputModel(
+          usia: data['usia'] as int,
+          jenisKelamin: data['jenisKelamin'] as String,
+          pekerjaan: data['pekerjaan'] as String,
+          pendapatanBulanan: data['pendapatanBulanan'] as double,
+          frekuensiTransaksi: data['frekuensiTransaksi'] as int,
+          saldoRataRata: data['saldoRataRata'] as double,
+          lamaMenjadiNasabah: data['lamaMenjadiNasabah'] as int,
+          statusNasabah: data['statusNasabah'] as String,
+        );
+
+        final id = '${sessionId}_$i';
+        final idNasabah = data['idNasabah'] as String;
+
+        final hasil = _rfService.predict(input, id, idNasabah);
+        hasilPrediksi.add(hasil);
+      }
+
+      int benar = hasilPrediksi.where((n) => n.evaluasi == 'Benar').length;
+      double akurasi = (benar / hasilPrediksi.length) * 100;
+
+      final session = PredictionSessionModel(
+        id: sessionId,
+        tanggalPrediksi: now,
+        nasabahList: hasilPrediksi,
+        akurasi: akurasi,
+      );
+
+      await _dbService.insertSession(session);
+      predictionSessions.insert(0, session);
+      currentSession.value = session;
+
+      // Clear Excel data
+      clearExcelData();
+
+      Get.snackbar(
+        'Berhasil',
+        'Prediksi berhasil disimpan dengan akurasi ${akurasi.toStringAsFixed(1)}%',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+
+      Get.toNamed(AppRoutes.detail);
+
+    } catch (e) {
+      _showError('Gagal menyimpan prediksi: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void clearExcelData() {
+    excelFileName.value = '';
+    excelData.clear();
   }
 }

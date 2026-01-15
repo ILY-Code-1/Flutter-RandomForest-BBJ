@@ -9,4 +9,6 @@ class AppRoutes {
   static const String riwayat = '/riwayat';
   static const String detail = '/detail';
   static const String form = '/form';
+  static const String pilihanInput = '/pilihan-input';
+  static const String uploadExcel = '/upload-excel';
 }

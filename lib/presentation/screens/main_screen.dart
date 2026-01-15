@@ -9,7 +9,7 @@ import '../../controllers/navigation_controller.dart';
 import '../../controllers/prediction_controller.dart';
 import '../../core/theme/app_colors.dart';
 import 'dashboard_screen.dart';
-import 'form_prediksi_screen.dart';
+import 'pilihan_input_screen.dart';
 import 'riwayat_prediksi_screen.dart';
 
 class MainScreen extends StatelessWidget {
@@ -22,7 +22,7 @@ class MainScreen extends StatelessWidget {
 
     final List<Widget> screens = [
       const DashboardScreen(),
-      const FormPrediksiScreen(),
+      const PilihanInputScreen(),
       const RiwayatPrediksiScreen(),
     ];
 

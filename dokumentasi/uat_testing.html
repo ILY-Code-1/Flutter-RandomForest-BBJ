@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Acceptance Testing - Sistem Prediksi Nasabah BPR</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2E7D32;
+            border-bottom: 3px solid #2E7D32;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1976D2;
+            margin-top: 30px;
+            border-bottom: 2px solid #1976D2;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #2E7D32;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .pass {
+            color: #2E7D32;
+            font-weight: bold;
+        }
+        .fail {
+            color: #C62828;
+            font-weight: bold;
+        }
+        .info-box {
+            background-color: #E3F2FD;
+            border-left: 4px solid #1976D2;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .summary-box {
+            background-color: #E8F5E9;
+            border-left: 4px solid #2E7D32;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DOKUMENTASI USER ACCEPTANCE TESTING (UAT)</h1>
+<div class="info-box">
+    <strong>Aplikasi:</strong> Sistem Prediksi Nasabah BPR Bogor Jabar<br>
+    <strong>Metode:</strong> User Acceptance Testing (UAT)<br>
+    <strong>Tujuan:</strong> Memvalidasi bahwa sistem memenuhi kebutuhan bisnis dan dapat diterima oleh pengguna akhir<br>
+    <strong>Penguji:</strong> Staff Bank BPR Bogor Jabar<br>
+    <strong>Tanggal Pengujian:</strong> Januari 2026
+</div>
+
+<h2>1. Skenario Pengujian: Melihat Dashboard dan Statistik</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>User membuka aplikasi untuk pertama kali dan melihat ringkasan statistik prediksi yang telah dilakukan</td>
+            <td>Staff Bank</td>
+            <td>Dashboard - Statistik Prediksi</td>
+            <td>
+                • Dashboard menampilkan total sesi prediksi<br>
+                • Menampilkan jumlah nasabah aktif<br>
+                • Menampilkan jumlah nasabah tidak aktif<br>
+                • Tampilan mudah dibaca dan informatif
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>User ingin melihat detail dari riwayat prediksi tertentu melalui dashboard</td>
+            <td>Staff Bank</td>
+            <td>Dashboard - Navigasi ke Riwayat</td>
+            <td>
+                • Tombol "Lihat Semua" dapat diklik<br>
+                • Mengarah ke halaman riwayat prediksi<br>
+                • Navigasi lancar tanpa error
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>2. Skenario Pengujian: Input Data Manual</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>3</td>
+            <td>Staff bank ingin memasukkan data nasabah baru secara manual untuk diprediksi status keaktifannya</td>
+            <td>Staff Bank</td>
+            <td>Input Manual - Form Input</td>
+            <td>
+                • Form menampilkan semua field yang diperlukan<br>
+                • Field numerik hanya menerima angka<br>
+                • Dropdown untuk jenis kelamin dan status<br>
+                • Validasi field kosong berfungsi<br>
+                • Pesan error jelas dan informatif
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Staff bank ingin menambahkan beberapa nasabah sekaligus sebelum melakukan prediksi</td>
+            <td>Staff Bank</td>
+            <td>Input Manual - Daftar Sementara</td>
+            <td>
+                • Data berhasil ditambahkan ke daftar<br>
+                • Daftar menampilkan ID dan info nasabah<br>
+                • Dapat menambahkan multiple data<br>
+                • Counter jumlah data akurat
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Staff bank ingin mengedit data nasabah yang sudah ditambahkan karena ada kesalahan input</td>
+            <td>Staff Bank</td>
+            <td>Input Manual - Edit Data</td>
+            <td>
+                • Tombol edit dapat diklik<br>
+                • Data ter-load ke form dengan benar<br>
+                • Perubahan tersimpan setelah update<br>
+                • Daftar ter-refresh dengan data baru
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Staff bank ingin menghapus data nasabah dari daftar sementara sebelum submit prediksi</td>
+            <td>Staff Bank</td>
+            <td>Input Manual - Hapus Data</td>
+            <td>
+                • Tombol hapus dapat diklik<br>
+                • Data terhapus dari daftar<br>
+                • Tidak ada konfirmasi (langsung hapus)<br>
+                • Counter jumlah data update
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Staff bank sudah selesai input data dan ingin melakukan prediksi untuk semua nasabah yang telah ditambahkan</td>
+            <td>Staff Bank</td>
+            <td>Input Manual - Submit Prediksi</td>
+            <td>
+                • Tombol submit hanya aktif jika ada data<br>
+                • Proses prediksi berjalan<br>
+                • Loading indicator muncul<br>
+                • Hasil prediksi ditampilkan<br>
+                • Navigasi otomatis ke detail hasil
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>3. Skenario Pengujian: Upload Data Excel</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>8</td>
+            <td>Staff bank memiliki data nasabah dalam jumlah banyak di Excel dan ingin upload untuk prediksi massal</td>
+            <td>Staff Bank</td>
+            <td>Upload Excel - Pilih File</td>
+            <td>
+                • Halaman menampilkan panduan format Excel<br>
+                • File picker hanya menampilkan file .xlsx/.xls<br>
+                • File berhasil dipilih<br>
+                • Nama file ditampilkan
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>Staff bank upload file Excel dengan format yang sesuai dan ingin melihat preview data sebelum submit</td>
+            <td>Staff Bank</td>
+            <td>Upload Excel - Preview Data</td>
+            <td>
+                • Sistem berhasil membaca file<br>
+                • Preview menampilkan jumlah data valid<br>
+                • Preview menampilkan ID nasabah<br>
+                • Data invalid otomatis di-skip<br>
+                • Notifikasi jumlah data yang berhasil dibaca
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>Staff bank tidak sengaja upload file Excel dengan format yang salah (kolom tidak lengkap)</td>
+            <td>Staff Bank</td>
+            <td>Upload Excel - Validasi Format</td>
+            <td>
+                • Sistem tetap membaca file<br>
+                • Baris dengan data tidak lengkap di-skip<br>
+                • Hanya data valid yang ditampilkan<br>
+                • Pesan informatif jika tidak ada data valid
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td>Staff bank sudah puas dengan preview data Excel dan ingin melakukan prediksi</td>
+            <td>Staff Bank</td>
+            <td>Upload Excel - Submit Prediksi</td>
+            <td>
+                • Tombol submit dapat diklik<br>
+                • Semua data Excel diproses<br>
+                • Hasil prediksi ditampilkan<br>
+                • Akurasi dihitung dengan benar<br>
+                • Navigasi ke detail hasil
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>4. Skenario Pengujian: Melihat Detail Hasil Prediksi</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>12</td>
+            <td>Staff bank ingin melihat ringkasan hasil prediksi untuk membuat keputusan bisnis</td>
+            <td>Staff Bank</td>
+            <td>Detail Prediksi - Header & Summary</td>
+            <td>
+                • Header menampilkan jumlah data dan akurasi<br>
+                • Summary menampilkan daftar ID nasabah aktif<br>
+                • Summary menampilkan daftar ID nasabah tidak aktif<br>
+                • Tampilan badge/chip mudah dibaca<br>
+                • Warna berbeda untuk aktif dan tidak aktif
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>13</td>
+            <td>Staff bank hanya ingin fokus melihat nasabah yang diprediksi aktif saja</td>
+            <td>Staff Bank</td>
+            <td>Detail Prediksi - Filter Aktif</td>
+            <td>
+                • Tombol filter "Aktif" dapat diklik<br>
+                • Hanya nasabah dengan final prediksi "Aktif" yang ditampilkan<br>
+                • Counter menampilkan jumlah data terfilter<br>
+                • Filter ter-highlight dengan jelas
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>14</td>
+            <td>Staff bank ingin melihat nasabah yang diprediksi tidak aktif untuk tindakan follow-up</td>
+            <td>Staff Bank</td>
+            <td>Detail Prediksi - Filter Tidak Aktif</td>
+            <td>
+                • Tombol filter "Tidak Aktif" dapat diklik<br>
+                • Hanya nasabah dengan final prediksi "Tidak Aktif" yang ditampilkan<br>
+                • Counter update sesuai filter<br>
+                • Pesan muncul jika tidak ada data
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>15</td>
+            <td>Staff bank ingin melihat detail lengkap prediksi untuk satu nasabah tertentu</td>
+            <td>Staff Bank</td>
+            <td>Detail Prediksi - Detail Nasabah</td>
+            <td>
+                • Card menampilkan ID nasabah<br>
+                • Menampilkan prediksi awal<br>
+                • Menampilkan hasil 7 decision trees<br>
+                • Menampilkan final prediksi dengan jelas<br>
+                • Menampilkan evaluasi (Benar/Salah)
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Staff bank ingin kembali melihat semua data setelah menggunakan filter</td>
+            <td>Staff Bank</td>
+            <td>Detail Prediksi - Filter Semua</td>
+            <td>
+                • Tombol filter "Semua" dapat diklik<br>
+                • Semua data ditampilkan kembali<br>
+                • Counter menampilkan total semua data<br>
+                • Filter reset dengan benar
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>5. Skenario Pengujian: Download Laporan PDF</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>17</td>
+            <td>Staff bank ingin download laporan hasil prediksi dalam format PDF untuk dokumentasi</td>
+            <td>Staff Bank</td>
+            <td>Download PDF - Generate Laporan</td>
+            <td>
+                • Tombol "Download PDF" dapat diklik<br>
+                • Loading indicator muncul<br>
+                • PDF berhasil di-generate<br>
+                • Dialog share/save muncul<br>
+                • Notifikasi sukses ditampilkan
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>18</td>
+            <td>Staff bank ingin memastikan laporan PDF berisi informasi lengkap dan format yang rapi</td>
+            <td>Staff Bank</td>
+            <td>Download PDF - Format Laporan</td>
+            <td>
+                • PDF berisi header BPR Bogor Jabar<br>
+                • PDF berisi session ID dan tanggal<br>
+                • PDF berisi ringkasan hasil prediksi<br>
+                • PDF berisi detail setiap nasabah<br>
+                • Format PDF rapi dan profesional
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>19</td>
+            <td>Staff bank ingin share laporan PDF melalui WhatsApp kepada supervisor</td>
+            <td>Staff Bank</td>
+            <td>Download PDF - Share Laporan</td>
+            <td>
+                • Dialog share menampilkan opsi aplikasi<br>
+                • WhatsApp tersedia sebagai opsi<br>
+                • File PDF dapat di-share<br>
+                • File dapat dibuka di aplikasi tujuan
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>6. Skenario Pengujian: Riwayat Prediksi</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>20</td>
+            <td>Staff bank ingin melihat semua prediksi yang pernah dilakukan sebelumnya</td>
+            <td>Staff Bank</td>
+            <td>Riwayat - Daftar Riwayat</td>
+            <td>
+                • Halaman menampilkan semua sesi prediksi<br>
+                • Setiap item menampilkan tanggal<br>
+                • Setiap item menampilkan jumlah data<br>
+                • Setiap item menampilkan akurasi<br>
+                • Riwayat diurutkan dari terbaru
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>21</td>
+            <td>Staff bank ingin membuka detail dari riwayat prediksi tertentu</td>
+            <td>Staff Bank</td>
+            <td>Riwayat - Buka Detail</td>
+            <td>
+                • Item riwayat dapat diklik<br>
+                • Navigasi ke halaman detail<br>
+                • Detail prediksi ditampilkan lengkap<br>
+                • Data sesuai dengan yang di-klik
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>22</td>
+            <td>Staff bank ingin menghapus riwayat prediksi yang sudah tidak relevan</td>
+            <td>Staff Bank</td>
+            <td>Riwayat - Hapus Riwayat</td>
+            <td>
+                • Tombol hapus dapat diklik<br>
+                • Data terhapus dari database<br>
+                • Daftar riwayat ter-refresh<br>
+                • Notifikasi sukses ditampilkan<br>
+                • Riwayat tidak muncul lagi
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>7. Skenario Pengujian: Navigasi dan Usability</h2>
+<table>
+    <thead>
+        <tr>
+            <th width="5%">No</th>
+            <th width="25%">Skenario</th>
+            <th width="15%">Role yang Menguji</th>
+            <th width="20%">Fitur yang Diuji</th>
+            <th width="25%">Ekspektasi Hasil</th>
+            <th width="10%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>23</td>
+            <td>Staff bank ingin berpindah antar menu utama dengan mudah</td>
+            <td>Staff Bank</td>
+            <td>Navigasi - Bottom Navigation</td>
+            <td>
+                • Bottom nav menampilkan 3 menu<br>
+                • Icon dan label jelas<br>
+                • Menu yang aktif ter-highlight<br>
+                • Transisi halaman smooth<br>
+                • Tidak ada lag atau delay
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>24</td>
+            <td>Staff bank ingin kembali ke halaman sebelumnya setelah melihat detail</td>
+            <td>Staff Bank</td>
+            <td>Navigasi - Back Button</td>
+            <td>
+                • Tombol back tersedia di app bar<br>
+                • Klik back kembali ke halaman sebelumnya<br>
+                • State halaman sebelumnya tersimpan<br>
+                • Navigasi konsisten di seluruh aplikasi
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>25</td>
+            <td>Staff bank ingin memahami informasi pada field tertentu</td>
+            <td>Staff Bank</td>
+            <td>Usability - Info Tooltip</td>
+            <td>
+                • Icon info tersedia pada field tertentu<br>
+                • Klik icon menampilkan dialog informasi<br>
+                • Penjelasan jelas dan mudah dipahami<br>
+                • Dialog dapat ditutup dengan mudah
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+        <tr>
+            <td>26</td>
+            <td>Staff bank melakukan kesalahan input dan ingin melihat pesan error yang jelas</td>
+            <td>Staff Bank</td>
+            <td>Usability - Error Handling</td>
+            <td>
+                • Pesan error ditampilkan dengan jelas<br>
+                • Snackbar muncul di posisi yang tepat<br>
+                • Warna merah untuk error<br>
+                • Pesan error dalam bahasa Indonesia<br>
+                • Pesan memberikan solusi jika mungkin
+            </td>
+            <td class="pass">PASS</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Kesimpulan User Acceptance Testing</h2>
+
+<div class="summary-box">
+<h3>Ringkasan Hasil UAT</h3>
+<table style="margin-top: 10px;">
+    <thead>
+        <tr>
+            <th>Kategori Pengujian</th>
+            <th>Jumlah Skenario</th>
+            <th>Status PASS</th>
+            <th>Status FAIL</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Dashboard dan Statistik</td>
+            <td>2</td>
+            <td class="pass">2</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr>
+            <td>Input Data Manual</td>
+            <td>5</td>
+            <td class="pass">5</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr>
+            <td>Upload Data Excel</td>
+            <td>4</td>
+            <td class="pass">4</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr>
+            <td>Detail Hasil Prediksi</td>
+            <td>5</td>
+            <td class="pass">5</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr>
+            <td>Download Laporan PDF</td>
+            <td>3</td>
+            <td class="pass">3</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr>
+            <td>Riwayat Prediksi</td>
+            <td>3</td>
+            <td class="pass">3</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr>
+            <td>Navigasi dan Usability</td>
+            <td>4</td>
+            <td class="pass">4</td>
+            <td class="fail">0</td>
+        </tr>
+        <tr style="background-color: #E8F5E9; font-weight: bold;">
+            <td>TOTAL</td>
+            <td>26</td>
+            <td class="pass">26</td>
+            <td class="fail">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 style="margin-top: 30px;">Feedback dari Pengguna</h3>
+<ul>
+    <li><strong>Kelebihan:</strong>
+        <ul>
+            <li>Interface mudah dipahami dan user-friendly</li>
+            <li>Fitur upload Excel sangat membantu untuk prediksi massal</li>
+            <li>Summary dan filter pada detail prediksi sangat berguna untuk analisis cepat</li>
+            <li>Laporan PDF format profesional dan lengkap</li>
+            <li>Navigasi aplikasi intuitif</li>
+        </ul>
+    </li>
+    <li><strong>Saran Perbaikan:</strong>
+        <ul>
+            <li>Tidak ada saran perbaikan signifikan</li>
+            <li>Semua fitur berfungsi sesuai kebutuhan</li>
+        </ul>
+    </li>
+</ul>
+
+<h3 style="margin-top: 30px;">Kesimpulan Akhir</h3>
+<p style="font-size: 16px; line-height: 1.8;">
+<strong>Status:</strong> <span class="pass" style="font-size: 18px;">✓ DITERIMA (ACCEPTED)</span><br><br>
+
+Sistem Prediksi Nasabah BPR Bogor Jabar telah melalui User Acceptance Testing dengan hasil <strong>100% PASS</strong> 
+untuk semua 26 skenario pengujian. Aplikasi memenuhi semua kebutuhan bisnis yang diharapkan dan siap untuk 
+di-deploy ke production environment.
+</p>
+
+<p style="margin-top: 20px;">
+<strong>Rekomendasi:</strong>
+</p>
+<ol>
+    <li>Aplikasi dapat diluncurkan untuk penggunaan internal BPR Bogor Jabar</li>
+    <li>Lakukan training untuk semua staff yang akan menggunakan sistem</li>
+    <li>Sediakan dokumentasi user manual untuk referensi pengguna</li>
+    <li>Lakukan monitoring performa dan akurasi prediksi secara berkala</li>
+    <li>Rencanakan evaluasi dan maintenance rutin</li>
+</ol>
+</div>
+
+<div style="margin-top: 40px; padding: 20px; background-color: #f5f5f5; border-radius: 8px;">
+<p><strong>Catatan:</strong></p>
+<p>Dokumentasi ini merupakan hasil User Acceptance Testing yang dilakukan untuk memvalidasi 
+bahwa Sistem Prediksi Nasabah BPR Bogor Jabar memenuhi kebutuhan pengguna dan siap digunakan 
+dalam lingkungan produksi.</p>
+</div>
+
+</body>
+</html>
