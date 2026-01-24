@@ -1,9 +1,10 @@
 // File: riwayat_prediksi_screen.dart
-// Screen untuk menampilkan daftar riwayat prediksi dari SQLite
+// Screen untuk menampilkan daftar riwayat prediksi dari Firestore
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/prediction_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../routes/app_routes.dart';
@@ -16,6 +17,7 @@ class RiwayatPrediksiScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<PredictionController>();
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -31,7 +33,7 @@ class RiwayatPrediksiScreen extends StatelessWidget {
           }
 
           if (controller.predictionSessions.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(authController);
           }
 
           return RefreshIndicator(
@@ -41,15 +43,17 @@ class RiwayatPrediksiScreen extends StatelessWidget {
               itemCount: controller.predictionSessions.length,
               itemBuilder: (context, index) {
                 final session = controller.predictionSessions[index];
+                final isAdmin = authController.isAdmin;
+                
                 return RiwayatListItem(
                   session: session,
                   onView: () {
                     controller.setCurrentSession(session);
                     Get.toNamed(AppRoutes.detail);
                   },
-                  onDelete: () {
+                  onDelete: isAdmin ? () {
                     _showDeleteDialog(context, controller, session.id, session.flag);
-                  },
+                  } : null, // Marketing tidak bisa hapus
                 );
               },
             ),
@@ -59,7 +63,7 @@ class RiwayatPrediksiScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AuthController authController) {
     return Center(
       child: Container(
         margin: const EdgeInsets.all(32),
@@ -105,53 +109,57 @@ class RiwayatPrediksiScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Mulai tambah prediksi baru untuk\nmelihat riwayat di sini',
+              authController.isAdmin 
+                  ? 'Mulai tambah prediksi baru untuk\nmelihat riwayat di sini'
+                  : 'Belum ada prediksi yang\ndi-assign kepada Anda',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, Color(0xFF1B5E20)],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+            if (authController.isAdmin) ...[
+              const SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, Color(0xFF1B5E20)],
                   ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
                   borderRadius: BorderRadius.circular(12),
-                  onTap: () => Get.back(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.add, color: Colors.white),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Buat Prediksi Baru',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => Get.toNamed(AppRoutes.pilihanInput),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.add, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Buat Prediksi Baru',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

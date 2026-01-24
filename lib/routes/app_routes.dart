@@ -4,6 +4,7 @@
 class AppRoutes {
   AppRoutes._();
 
+  static const String login = '/login';
   static const String main = '/';
   static const String dashboard = '/dashboard';
   static const String riwayat = '/riwayat';
@@ -11,4 +12,8 @@ class AppRoutes {
   static const String form = '/form';
   static const String pilihanInput = '/pilihan-input';
   static const String uploadExcel = '/upload-excel';
+  static const String users = '/users';
+  static const String addUser = '/add-user';
+  static const String editUser = '/edit-user';
+  static const String comments = '/comments';
 }

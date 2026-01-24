@@ -7,7 +7,8 @@
       "Bash(flutter pub get)",
       "Edit(**)",
       "Write(**)",
-      "Bash(dart run generate_template.dart)"
+      "Bash(dart run generate_template.dart)",
+      "Bash(cd C:\\Flutter\\FlutterProjects\\flutter_randomdforest_bbj && dir /s /b *.xlsx *.xls 2>$null)"
     ]
   }
 }

@@ -160,7 +160,7 @@ class UploadExcelScreen extends StatelessWidget {
                   '• Kolom F: Frekuensi Transaksi\n'
                   '• Kolom G: Saldo Rata-Rata\n'
                   '• Kolom H: Lama Menjadi Nasabah (tahun)\n'
-                  '• Kolom I: Status Nasabah (Aktif/Tidak Aktif)',
+                  '• Kolom I: Status Nasabah (Aktif/Pasif)',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),

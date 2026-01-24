@@ -205,29 +205,31 @@ class RiwayatListItem extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.error.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.error, width: 1.5),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
+                    if (onDelete != null) ...[
+                      const SizedBox(width: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
-                          onTap: onDelete,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: const Icon(
-                              Icons.delete_outline,
-                              color: AppColors.error,
-                              size: 20,
+                          border: Border.all(color: AppColors.error, width: 1.5),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: onDelete,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: const Icon(
+                                Icons.delete_outline,
+                                color: AppColors.error,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ],

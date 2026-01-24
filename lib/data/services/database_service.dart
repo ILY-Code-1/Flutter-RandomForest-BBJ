@@ -13,7 +13,7 @@ class DatabaseService {
   Database? _database;
 
   static const String _tableName = 'prediction_sessions';
-  static const int _dbVersion = 1;
+  static const int _dbVersion = 2;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -27,6 +27,7 @@ class DatabaseService {
       path,
       version: _dbVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -37,9 +38,21 @@ class DatabaseService {
         flag TEXT NOT NULL,
         tanggal_prediksi TEXT NOT NULL,
         nasabah_data TEXT NOT NULL,
-        akurasi REAL NOT NULL
+        akurasi REAL NOT NULL,
+        created_by TEXT DEFAULT '',
+        assigned_user_ids TEXT DEFAULT '[]',
+        comments TEXT DEFAULT '[]'
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add new columns for version 2
+      await db.execute('ALTER TABLE $_tableName ADD COLUMN created_by TEXT DEFAULT ""');
+      await db.execute('ALTER TABLE $_tableName ADD COLUMN assigned_user_ids TEXT DEFAULT "[]"');
+      await db.execute('ALTER TABLE $_tableName ADD COLUMN comments TEXT DEFAULT "[]"');
+    }
   }
 
   Future<String> insertSession(PredictionSessionModel session) async {

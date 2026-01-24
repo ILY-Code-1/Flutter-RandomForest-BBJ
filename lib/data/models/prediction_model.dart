@@ -2,6 +2,7 @@
 // Model data untuk prediksi nasabah dengan JSON serialization untuk SQLite
 
 import 'dart:convert';
+import 'comment_model.dart';
 
 class NasabahModel {
   final String id;
@@ -115,6 +116,9 @@ class PredictionSessionModel {
   final DateTime tanggalPrediksi;
   final List<NasabahModel> nasabahList;
   final double akurasi;
+  final String createdBy; // User ID yang membuat prediksi
+  final List<String> assignedUserIds; // List user ID yang dapat melihat (untuk marketing)
+  final List<CommentModel> comments; // List komentar
 
   PredictionSessionModel({
     required this.id,
@@ -122,6 +126,9 @@ class PredictionSessionModel {
     required this.tanggalPrediksi,
     required this.nasabahList,
     required this.akurasi,
+    required this.createdBy,
+    this.assignedUserIds = const [],
+    this.comments = const [],
   }) : flag = flag ?? _generateFlag(tanggalPrediksi);
 
   static String _generateFlag(DateTime d) {
@@ -134,7 +141,7 @@ class PredictionSessionModel {
 
   int get nasabahAktif => nasabahList.where((n) => n.finalPrediksi == 'Aktif').length;
 
-  int get nasabahTidakAktif => nasabahList.where((n) => n.finalPrediksi == 'Tidak Aktif').length;
+  int get nasabahTidakAktif => nasabahList.where((n) => n.finalPrediksi == 'Pasif').length;
 
   int get prediksiBenar => nasabahList.where((n) => n.evaluasi == 'Benar').length;
 
@@ -145,6 +152,9 @@ class PredictionSessionModel {
       'tanggalPrediksi': tanggalPrediksi.toIso8601String(),
       'nasabahList': nasabahList.map((n) => n.toJson()).toList(),
       'akurasi': akurasi,
+      'createdBy': createdBy,
+      'assignedUserIds': assignedUserIds,
+      'comments': comments.map((c) => c.toJson()).toList(),
     };
   }
 
@@ -157,6 +167,15 @@ class PredictionSessionModel {
           .map((item) => NasabahModel.fromJson(item as Map<String, dynamic>))
           .toList(),
       akurasi: (json['akurasi'] as num).toDouble(),
+      createdBy: json['createdBy'] as String? ?? '',
+      assignedUserIds: json['assignedUserIds'] != null 
+          ? List<String>.from(json['assignedUserIds'] as List)
+          : [],
+      comments: json['comments'] != null
+          ? (json['comments'] as List)
+              .map((item) => CommentModel.fromJson(item as Map<String, dynamic>))
+              .toList()
+          : [],
     );
   }
 
@@ -167,11 +186,21 @@ class PredictionSessionModel {
       'tanggal_prediksi': tanggalPrediksi.toIso8601String(),
       'nasabah_data': jsonEncode(nasabahList.map((n) => n.toJson()).toList()),
       'akurasi': akurasi,
+      'created_by': createdBy,
+      'assigned_user_ids': jsonEncode(assignedUserIds),
+      'comments': jsonEncode(comments.map((c) => c.toJson()).toList()),
     };
   }
 
   factory PredictionSessionModel.fromDbMap(Map<String, dynamic> map) {
     final nasabahData = jsonDecode(map['nasabah_data'] as String) as List;
+    final assignedData = map['assigned_user_ids'] != null 
+        ? jsonDecode(map['assigned_user_ids'] as String) as List
+        : [];
+    final commentsData = map['comments'] != null
+        ? jsonDecode(map['comments'] as String) as List
+        : [];
+    
     return PredictionSessionModel(
       id: map['id'] as String,
       flag: map['flag'] as String,
@@ -180,6 +209,11 @@ class PredictionSessionModel {
           .map((item) => NasabahModel.fromJson(item as Map<String, dynamic>))
           .toList(),
       akurasi: (map['akurasi'] as num).toDouble(),
+      createdBy: map['created_by'] as String? ?? '',
+      assignedUserIds: List<String>.from(assignedData),
+      comments: commentsData
+          .map((item) => CommentModel.fromJson(item as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -198,7 +232,7 @@ class PredictionSessionModel {
     buffer.writeln('───────────────────────────────────────────');
     buffer.writeln('Total Data Nasabah : $jumlahData');
     buffer.writeln('Prediksi Aktif     : $nasabahAktif');
-    buffer.writeln('Prediksi Tidak Aktif: $nasabahTidakAktif');
+    buffer.writeln('Prediksi Pasif: $nasabahTidakAktif');
     buffer.writeln('Prediksi Benar     : $prediksiBenar');
     buffer.writeln('Akurasi            : ${akurasi.toStringAsFixed(2)}%');
     buffer.writeln('');

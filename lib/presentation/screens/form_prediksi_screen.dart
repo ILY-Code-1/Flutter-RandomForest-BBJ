@@ -21,9 +21,7 @@ class FormPrediksiScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundGreen,
-      appBar: const CustomAppBar(
-        title: 'MULAI PREDIKSI',
-      ),
+      appBar: const CustomAppBar(title: 'MULAI PREDIKSI'),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
@@ -55,7 +53,10 @@ class FormPrediksiScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFormSection(PredictionController controller, BoxConstraints constraints) {
+  Widget _buildFormSection(
+    PredictionController controller,
+    BoxConstraints constraints,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -141,17 +142,19 @@ class FormPrediksiScreen extends StatelessWidget {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
           const SizedBox(height: 16),
-          Obx(() => CustomDropdown<String>(
-                label: 'Jenis Kelamin',
-                value: controller.jenisKelamin.value,
-                items: const ['Laki-laki', 'Perempuan'],
-                itemLabel: (item) => item,
-                onChanged: (value) {
-                  if (value != null) {
-                    controller.jenisKelamin.value = value;
-                  }
-                },
-              )),
+          Obx(
+            () => CustomDropdown<String>(
+              label: 'Jenis Kelamin',
+              value: controller.jenisKelamin.value,
+              items: const ['Laki-laki', 'Perempuan'],
+              itemLabel: (item) => item,
+              onChanged: (value) {
+                if (value != null) {
+                  controller.jenisKelamin.value = value;
+                }
+              },
+            ),
+          ),
           const SizedBox(height: 16),
           CustomTextField(
             label: 'Pekerjaan',
@@ -167,9 +170,12 @@ class FormPrediksiScreen extends StatelessWidget {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             suffixIcon: IconButton(
               icon: const Icon(Icons.info_outline, color: AppColors.primary),
-              onPressed: () => _showInfoDialog('Pendapatan Bulanan', 
-                  'Masukkan pendapatan bulanan nasabah dalam Rupiah.'),
+              onPressed: () => _showInfoDialog(
+                'Pendapatan Bulanan',
+                'Masukkan pendapatan bulanan nasabah dalam Rupiah.',
+              ),
             ),
+
           ),
           const SizedBox(height: 16),
           CustomTextField(
@@ -180,9 +186,12 @@ class FormPrediksiScreen extends StatelessWidget {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             suffixIcon: IconButton(
               icon: const Icon(Icons.info_outline, color: AppColors.primary),
-              onPressed: () => _showInfoDialog('Frekuensi Transaksi', 
-                  'Jumlah transaksi yang dilakukan nasabah per bulan.'),
+              onPressed: () => _showInfoDialog(
+                'Frekuensi Transaksi',
+                'Jumlah transaksi yang dilakukan nasabah per bulan.',
+              ),
             ),
+
           ),
           const SizedBox(height: 16),
           CustomTextField(
@@ -193,9 +202,12 @@ class FormPrediksiScreen extends StatelessWidget {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             suffixIcon: IconButton(
               icon: const Icon(Icons.info_outline, color: AppColors.primary),
-              onPressed: () => _showInfoDialog('Saldo Rata-Rata', 
-                  'Rata-rata saldo rekening nasabah dalam Rupiah.'),
+              onPressed: () => _showInfoDialog(
+                'Saldo Rata-Rata',
+                'Rata-rata saldo rekening nasabah dalam Rupiah.',
+              ),
             ),
+
           ),
           const SizedBox(height: 24),
           const Divider(),
@@ -206,19 +218,22 @@ class FormPrediksiScreen extends StatelessWidget {
             controller: controller.lamaController,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
           ),
           const SizedBox(height: 16),
-          Obx(() => CustomDropdown<String>(
-                label: 'Status Nasabah',
-                value: controller.statusNasabah.value,
-                items: const ['Aktif', 'Tidak Aktif'],
-                itemLabel: (item) => item,
-                onChanged: (value) {
-                  if (value != null) {
-                    controller.statusNasabah.value = value;
-                  }
-                },
-              )),
+          Obx(
+            () => CustomDropdown<String>(
+              label: 'Status Nasabah',
+              value: controller.statusNasabah.value,
+              items: const ['Aktif', 'Pasif'],
+              itemLabel: (item) => item,
+              onChanged: (value) {
+                if (value != null) {
+                  controller.statusNasabah.value = value;
+                }
+              },
+            ),
+          ),
           const SizedBox(height: 24),
           _buildActionButtons(controller),
         ],
@@ -227,59 +242,62 @@ class FormPrediksiScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(PredictionController controller) {
-    return Obx(() => Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: controller.isEditMode.value
-                        ? [const Color(0xFFFFA726), const Color(0xFFFF6F00)]
-                        : [AppColors.secondary, const Color(0xFF1565C0)],
+    return Obx(
+      () => Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: controller.isEditMode.value
+                      ? [const Color(0xFFFFA726), const Color(0xFFFF6F00)]
+                      : [AppColors.secondary, const Color(0xFF1565C0)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        (controller.isEditMode.value
+                                ? const Color(0xFFFFA726)
+                                : AppColors.secondary)
+                            .withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (controller.isEditMode.value
-                              ? const Color(0xFFFFA726)
-                              : AppColors.secondary)
-                          .withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: SmallButton(
-                  text: controller.isEditMode.value ? '✓ Update' : '+ Tambah',
-                  backgroundColor: Colors.transparent,
-                  onPressed: () {
-                    if (controller.isEditMode.value) {
-                      controller.updateNasabahInTemp();
-                    } else {
-                      controller.addNasabahToTemp();
-                    }
-                  },
-                ),
+                ],
+              ),
+              child: SmallButton(
+                text: controller.isEditMode.value ? '✓ Update' : '+ Tambah',
+                backgroundColor: Colors.transparent,
+                onPressed: () {
+                  if (controller.isEditMode.value) {
+                    controller.updateNasabahInTemp();
+                  } else {
+                    controller.addNasabahToTemp();
+                  }
+                },
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.textSecondary, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: SmallButton(
-                  text: controller.isEditMode.value ? '✕ Cancel' : '⟲ Clear',
-                  backgroundColor: Colors.transparent,
-                  onPressed: () {
-                    controller.clearForm();
-                  },
-                ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.textSecondary, width: 2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SmallButton(
+                text: controller.isEditMode.value ? '✕ Cancel' : '⟲ Clear',
+                backgroundColor: Colors.transparent,
+                onPressed: () {
+                  controller.clearForm();
+                },
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTempList(PredictionController controller) {
@@ -347,7 +365,10 @@ class FormPrediksiScreen extends StatelessWidget {
                   label: const Text('Hapus Semua'),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.error,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                   ),
                 ),
               ],
@@ -359,10 +380,7 @@ class FormPrediksiScreen extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withOpacity(0.03),
-                      Colors.white,
-                    ],
+                    colors: [AppColors.primary.withOpacity(0.03), Colors.white],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -428,8 +446,13 @@ class FormPrediksiScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.edit, color: AppColors.primary, size: 20),
-                              onPressed: () => controller.setEditModeFromTemp(index),
+                              icon: const Icon(
+                                Icons.edit,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              onPressed: () =>
+                                  controller.setEditModeFromTemp(index),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -439,8 +462,13 @@ class FormPrediksiScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.delete, color: AppColors.error, size: 20),
-                              onPressed: () => controller.removeNasabahFromTemp(index),
+                              icon: const Icon(
+                                Icons.delete,
+                                color: AppColors.error,
+                                size: 20,
+                              ),
+                              onPressed: () =>
+                                  controller.removeNasabahFromTemp(index),
                             ),
                           ),
                         ],
@@ -491,11 +519,7 @@ class FormPrediksiScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.analytics,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  Icon(Icons.analytics, color: Colors.white, size: 24),
                   const SizedBox(width: 12),
                   Text(
                     'SUBMIT PREDIKSI',
@@ -521,10 +545,7 @@ class FormPrediksiScreen extends StatelessWidget {
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('OK'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('OK')),
         ],
       ),
     );

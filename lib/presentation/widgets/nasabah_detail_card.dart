@@ -9,10 +9,7 @@ import '../../data/models/prediction_model.dart';
 class NasabahDetailCard extends StatelessWidget {
   final NasabahModel nasabah;
 
-  const NasabahDetailCard({
-    super.key,
-    required this.nasabah,
-  });
+  const NasabahDetailCard({super.key, required this.nasabah});
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +33,9 @@ class NasabahDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with ID and Badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'ID NASABAH: ${nasabah.idNasabah}',

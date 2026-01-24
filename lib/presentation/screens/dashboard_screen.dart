@@ -5,8 +5,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/prediction_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../routes/app_routes.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/info_card.dart';
 
@@ -16,12 +18,48 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<PredictionController>();
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         title: 'BPR BOGOR JABAR RANDOM FOREST APP',
         showLogo: true,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'users' && authController.isAdmin) {
+                Get.toNamed(AppRoutes.users);
+              } else if (value == 'logout') {
+                _showLogoutDialog(context, authController);
+              }
+            },
+            itemBuilder: (context) => [
+              if (authController.isAdmin)
+                const PopupMenuItem(
+                  value: 'users',
+                  child: Row(
+                    children: [
+                      Icon(Icons.people),
+                      SizedBox(width: 8),
+                      Text('Kelola User'),
+                    ],
+                  ),
+                ),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -104,7 +142,7 @@ class DashboardScreen extends StatelessWidget {
               Expanded(
                 child: YellowStatBox(
                   icon: Icons.person_off,
-                  label: 'Nasabah Tidak Aktif',
+                  label: 'Nasabah Pasif',
                   value: controller.totalNasabahTidakAktif.toString(),
                 ),
               ),
@@ -186,6 +224,32 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthController authController) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Get.back();
+              await authController.logout();
+              Get.offAllNamed(AppRoutes.login);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
     );
   }
 }

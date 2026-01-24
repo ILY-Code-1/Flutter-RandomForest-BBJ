@@ -176,7 +176,7 @@ class PdfService {
             children: [
               _buildSummaryItem('Total Data', session.jumlahData.toString()),
               _buildSummaryItem('Prediksi Aktif', session.nasabahAktif.toString()),
-              _buildSummaryItem('Prediksi Tidak Aktif', session.nasabahTidakAktif.toString()),
+              _buildSummaryItem('Prediksi Pasif', session.nasabahTidakAktif.toString()),
               _buildSummaryItem('Prediksi Benar', session.prediksiBenar.toString()),
               _buildSummaryItem('Akurasi', '${session.akurasi.toStringAsFixed(1)}%'),
             ],

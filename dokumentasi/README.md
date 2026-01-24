@@ -286,7 +286,7 @@ Dokumentasi ini telah disusun sesuai dengan standar dokumentasi sistem informasi
 3. **Upload Excel**: Upload data nasabah dalam jumlah banyak
 4. **Prediksi**: Menggunakan Random Forest dengan 7 Decision Trees
 5. **Detail Hasil**: Lihat hasil prediksi dengan filter
-6. **Summary**: Ringkasan nasabah aktif/tidak aktif
+6. **Summary**: Ringkasan nasabah aktif/pasif
 7. **Download PDF**: Export laporan dalam format PDF
 8. **Riwayat**: Lihat dan kelola riwayat prediksi
 

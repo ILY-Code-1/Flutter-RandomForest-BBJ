@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../controllers/prediction_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/services/pdf_service.dart';
@@ -12,6 +13,8 @@ import '../../data/models/prediction_model.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/nasabah_detail_card.dart';
+import '../widgets/share_user_dialog.dart';
+import 'comments_screen.dart';
 
 enum FilterStatus { semua, aktif, tidakAktif }
 
@@ -31,7 +34,7 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
         return allNasabah.where((n) => n.finalPrediksi == 'Aktif').toList();
       case FilterStatus.tidakAktif:
         return allNasabah
-            .where((n) => n.finalPrediksi == 'Tidak Aktif')
+            .where((n) => n.finalPrediksi == 'Pasif')
             .toList();
       case FilterStatus.semua:
       default:
@@ -42,12 +45,38 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<PredictionController>();
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         title: 'DETAIL PREDIKSI',
         showBackButton: true,
+        actions: [
+          // Share button (admin only)
+          if (authController.isAdmin)
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () async {
+                if (controller.currentSession.value != null) {
+                  await Get.dialog(
+                    ShareUserDialog(session: controller.currentSession.value!),
+                  );
+                }
+              },
+            ),
+          // Comment button (both roles)
+          IconButton(
+            icon: const Icon(Icons.comment),
+            onPressed: () {
+              if (controller.currentSession.value != null) {
+                Get.to(() => CommentsScreen(
+                      session: controller.currentSession.value!,
+                    ));
+              }
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Obx(() {
@@ -62,7 +91,7 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
               .where((n) => n.finalPrediksi == 'Aktif')
               .toList();
           final nasabahTidakAktif = session.nasabahList
-              .where((n) => n.finalPrediksi == 'Tidak Aktif')
+              .where((n) => n.finalPrediksi == 'Pasif')
               .toList();
 
           return LayoutBuilder(
@@ -78,6 +107,8 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
                     ),
                     const SizedBox(height: 12),
                     _buildDownloadButton(context, session),
+                    const SizedBox(height: 12),
+                    _buildCommentButton(context, session),
                     const SizedBox(height: 16),
                     _buildSummarySection(nasabahAktif, nasabahTidakAktif),
                     const SizedBox(height: 16),
@@ -269,7 +300,7 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Nasabah Tidak Aktif Section
+          // Nasabah Pasif Section
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -291,7 +322,7 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Nasabah Tidak Aktif (${nasabahTidakAktif.length})',
+                      'Nasabah Pasif (${nasabahTidakAktif.length})',
                       style: AppTextStyles.labelLarge.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.error,
@@ -300,7 +331,7 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
                     const SizedBox(height: 8),
                     if (nasabahTidakAktif.isEmpty)
                       Text(
-                        'Tidak ada nasabah dengan prediksi tidak aktif',
+                        'Tidak ada nasabah dengan prediksi pasif',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                           fontStyle: FontStyle.italic,
@@ -401,7 +432,7 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildFilterChip(
-                  label: 'Tidak Aktif',
+                  label: 'Pasif',
                   count: jumlahTidakAktif,
                   isSelected: _selectedFilter == FilterStatus.tidakAktif,
                   color: AppColors.error,
@@ -487,6 +518,53 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
           label: const Text(
             'Download Laporan PDF',
             style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommentButton(BuildContext context, dynamic session) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, Color(0xFF1B5E20)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            if (session != null) {
+              Get.to(() => CommentsScreen(session: session));
+            }
+          },
+          icon: const Icon(Icons.comment, color: Colors.white, size: 24),
+          label: Text(
+            'Komentar (${session?.comments?.length ?? 0})',
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16,

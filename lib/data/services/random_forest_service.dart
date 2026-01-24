@@ -4,7 +4,7 @@
 // CARA MENAMBAH/MENGURANGI POHON:
 // 1. Tambahkan method baru seperti _pohon8(), _pohon9(), dst
 // 2. Update list _semuaPohon di constructor
-// 3. Setiap pohon menerima data nasabah dan mengembalikan 'Aktif' atau 'Tidak Aktif'
+// 3. Setiap pohon menerima data nasabah dan mengembalikan 'Aktif' atau 'Pasif'
 
 import '../models/prediction_model.dart';
 
@@ -34,7 +34,7 @@ class NasabahInputModel {
 
 class RandomForestService {
   static const String aktif = 'Aktif';
-  static const String tidakAktif = 'Tidak Aktif';
+  static const String tidakAktif = 'Pasif';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DAFTAR POHON KEPUTUSAN
@@ -102,7 +102,7 @@ class RandomForestService {
   // Logika:
   // - Jika frekuensi transaksi >= 10 dan saldo >= 3jt -> Aktif
   // - Jika frekuensi transaksi >= 5 dan saldo >= 5jt -> Aktif
-  // - Selain itu -> Tidak Aktif
+  // - Selain itu -> Pasif
   String _pohon1(NasabahInputModel input) {
     if (input.frekuensiTransaksi >= 10 && input.saldoRataRata >= 3000000) {
       return aktif;
@@ -120,7 +120,7 @@ class RandomForestService {
   // - Usia 25-55 (usia produktif) dengan pendapatan >= 5jt -> Aktif
   // - Usia < 25 dengan pendapatan >= 3jt dan frekuensi >= 8 -> Aktif
   // - Usia > 55 dengan pendapatan >= 10jt -> Aktif
-  // - Selain itu -> Tidak Aktif
+  // - Selain itu -> Pasif
   String _pohon2(NasabahInputModel input) {
     if (input.usia >= 25 && input.usia <= 55 && input.pendapatanBulanan >= 5000000) {
       return aktif;
@@ -141,7 +141,7 @@ class RandomForestService {
   // - Lama >= 3 tahun -> Aktif (nasabah loyal)
   // - Lama >= 1 tahun dengan pekerjaan stabil (PNS, Karyawan, Profesional) -> Aktif
   // - Lama < 1 tahun dengan frekuensi >= 15 -> Aktif (nasabah baru aktif)
-  // - Selain itu -> Tidak Aktif
+  // - Selain itu -> Pasif
   String _pohon3(NasabahInputModel input) {
     if (input.lamaMenjadiNasabah >= 3) {
       return aktif;
@@ -167,7 +167,7 @@ class RandomForestService {
   // - Saldo >= 10jt -> Aktif (high value customer)
   // - Saldo >= 5jt dan frekuensi >= 5 -> Aktif
   // - Saldo >= 2jt dan frekuensi >= 12 -> Aktif (aktif tapi saldo rendah)
-  // - Selain itu -> Tidak Aktif
+  // - Selain itu -> Pasif
   String _pohon4(NasabahInputModel input) {
     if (input.saldoRataRata >= 10000000) {
       return aktif;
@@ -188,8 +188,8 @@ class RandomForestService {
   // - Pendapatan >= 7jt dan transaksi >= 8 -> Aktif
   // - Pendapatan >= 5jt dan lama >= 2 tahun -> Aktif
   // - Transaksi >= 20 (sangat aktif) -> Aktif
-  // - Pendapatan < 3jt dan transaksi < 3 -> Tidak Aktif
-  // - Selain itu perlu analisis lebih -> Tidak Aktif
+  // - Pendapatan < 3jt dan transaksi < 3 -> Pasif
+  // - Selain itu perlu analisis lebih -> Pasif
   String _pohon5(NasabahInputModel input) {
     if (input.pendapatanBulanan >= 7000000 && input.frekuensiTransaksi >= 8) {
       return aktif;
@@ -210,7 +210,7 @@ class RandomForestService {
   // - Usia 30-50 dengan pendapatan >= 6jt -> Aktif (prime earning years)
   // - Laki-laki usia >= 25 dengan pendapatan >= 5jt dan saldo >= 3jt -> Aktif
   // - Perempuan dengan pendapatan >= 4jt dan frekuensi >= 10 -> Aktif
-  // - Selain itu -> Tidak Aktif
+  // - Selain itu -> Pasif
   String _pohon6(NasabahInputModel input) {
     if (input.usia >= 30 && input.usia <= 50 && input.pendapatanBulanan >= 6000000) {
       return aktif;
@@ -235,7 +235,7 @@ class RandomForestService {
   // Logika berbasis skor:
   // - Hitung skor dari semua faktor
   // - Skor >= 4 -> Aktif
-  // - Skor < 4 -> Tidak Aktif
+  // - Skor < 4 -> Pasif
   String _pohon7(NasabahInputModel input) {
     int skor = 0;
 
