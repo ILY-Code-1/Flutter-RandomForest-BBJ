@@ -24,7 +24,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
   final _namaController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _selectedRole = 'marketing';
+  String _selectedRole = 'admin'; // Default value yang valid
 
   bool get isEdit => widget.user != null;
 
@@ -142,15 +142,12 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
             CustomDropdown(
               label: 'Role',
               value: _selectedRole,
-              items: const [
-                {'value': 'admin', 'label': 'Admin'},
-                {'value': 'marketing', 'label': 'Marketing'},
-              ],
+              items: const ['admin', 'marketing'],
               onChanged: (value) {
                 setState(() => _selectedRole = value.toString());
               },
-              itemLabel: (Object p1) {
-                switch (p1) {
+              itemLabel: (String role) {
+                switch (role) {
                   case 'admin':
                     return 'Admin';
                   case 'marketing':

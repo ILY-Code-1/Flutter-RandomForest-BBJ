@@ -1,7 +1,6 @@
 // File: prediction_model.dart
-// Model data untuk prediksi nasabah dengan JSON serialization untuk SQLite
+// Model data untuk prediksi nasabah dengan JSON serialization untuk Firestore
 
-import 'dart:convert';
 import 'comment_model.dart';
 
 class NasabahModel {
@@ -168,7 +167,7 @@ class PredictionSessionModel {
           .toList(),
       akurasi: (json['akurasi'] as num).toDouble(),
       createdBy: json['createdBy'] as String? ?? '',
-      assignedUserIds: json['assignedUserIds'] != null 
+      assignedUserIds: json['assignedUserIds'] != null
           ? List<String>.from(json['assignedUserIds'] as List)
           : [],
       comments: json['comments'] != null
@@ -176,44 +175,6 @@ class PredictionSessionModel {
               .map((item) => CommentModel.fromJson(item as Map<String, dynamic>))
               .toList()
           : [],
-    );
-  }
-
-  Map<String, dynamic> toDbMap() {
-    return {
-      'id': id,
-      'flag': flag,
-      'tanggal_prediksi': tanggalPrediksi.toIso8601String(),
-      'nasabah_data': jsonEncode(nasabahList.map((n) => n.toJson()).toList()),
-      'akurasi': akurasi,
-      'created_by': createdBy,
-      'assigned_user_ids': jsonEncode(assignedUserIds),
-      'comments': jsonEncode(comments.map((c) => c.toJson()).toList()),
-    };
-  }
-
-  factory PredictionSessionModel.fromDbMap(Map<String, dynamic> map) {
-    final nasabahData = jsonDecode(map['nasabah_data'] as String) as List;
-    final assignedData = map['assigned_user_ids'] != null 
-        ? jsonDecode(map['assigned_user_ids'] as String) as List
-        : [];
-    final commentsData = map['comments'] != null
-        ? jsonDecode(map['comments'] as String) as List
-        : [];
-    
-    return PredictionSessionModel(
-      id: map['id'] as String,
-      flag: map['flag'] as String,
-      tanggalPrediksi: DateTime.parse(map['tanggal_prediksi'] as String),
-      nasabahList: nasabahData
-          .map((item) => NasabahModel.fromJson(item as Map<String, dynamic>))
-          .toList(),
-      akurasi: (map['akurasi'] as num).toDouble(),
-      createdBy: map['created_by'] as String? ?? '',
-      assignedUserIds: List<String>.from(assignedData),
-      comments: commentsData
-          .map((item) => CommentModel.fromJson(item as Map<String, dynamic>))
-          .toList(),
     );
   }
 

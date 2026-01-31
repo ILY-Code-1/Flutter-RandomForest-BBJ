@@ -2,6 +2,7 @@
 // Main screen untuk admin (Home, Riwayat, dan FAB untuk tambah prediksi)
 
 import 'package:flutter/material.dart';
+import 'package:flutter_randomdforest_bbj/presentation/screens/users_screen.dart';
 import 'package:get/get.dart';
 import '../../controllers/navigation_controller.dart';
 import '../../controllers/prediction_controller.dart';
@@ -21,23 +22,25 @@ class AdminMainScreen extends StatelessWidget {
     final List<Widget> screens = [
       const DashboardScreen(),
       const RiwayatPrediksiScreen(),
+      const UsersScreen(),
     ];
 
     return Scaffold(
-      body: Obx(() => IndexedStack(
-            index: navigationController.currentIndex.value,
-            children: screens,
-          )),
-      floatingActionButton: FloatingActionButton.extended(
+      body: Obx(
+        () => IndexedStack(
+          index: navigationController.currentIndex.value,
+          children: screens,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           predictionController.clearForm();
           Get.toNamed(AppRoutes.pilihanInput);
         },
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add),
-        label: const Text('Mulai Prediksi'),
+        child: const Icon(Icons.add, color: Colors.white, size: 24),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Obx(() => _buildBottomNavBar(navigationController)),
     );
   }
@@ -73,6 +76,12 @@ class AdminMainScreen extends StatelessWidget {
                 label: 'Riwayat',
                 isSelected: navigationController.currentIndex.value == 1,
                 onTap: () => navigationController.changePage(1),
+              ),
+              _buildNavItem(
+                icon: Icons.people_alt_outlined,
+                label: 'Kelola User',
+                isSelected: navigationController.currentIndex.value == 2,
+                onTap: () => navigationController.changePage(2),
               ),
             ],
           ),

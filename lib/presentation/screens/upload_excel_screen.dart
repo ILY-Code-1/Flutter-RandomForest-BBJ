@@ -7,7 +7,6 @@ import '../../controllers/prediction_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/custom_button.dart';
 
 class UploadExcelScreen extends StatelessWidget {
   const UploadExcelScreen({super.key});
@@ -18,9 +17,7 @@ class UploadExcelScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundGreen,
-      appBar: const CustomAppBar(
-        title: 'UPLOAD EXCEL',
-      ),
+      appBar: const CustomAppBar(title: 'UPLOAD EXCEL'),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
@@ -119,16 +116,14 @@ class UploadExcelScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Info Box
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.secondary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.secondary.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,106 +164,105 @@ class UploadExcelScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Upload Button
-          Obx(() => controller.excelFileName.value.isEmpty
-              ? Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.secondary, Color(0xFF1565C0)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.secondary.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+          Obx(
+            () => controller.excelFileName.value.isEmpty
+                ? Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.secondary, Color(0xFF1565C0)],
                       ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
                       borderRadius: BorderRadius.circular(12),
-                      onTap: () => controller.pickExcelFile(),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.file_upload,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'PILIH FILE EXCEL',
-                              style: AppTextStyles.button.copyWith(
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.secondary.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => controller.pickExcelFile(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.file_upload,
                                 color: Colors.white,
+                                size: 24,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 12),
+                              Text(
+                                'PILIH FILE EXCEL',
+                                style: AppTextStyles.button.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-              : Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.green,
-                      width: 2,
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green, width: 2),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'File Berhasil Dipilih',
+                                style: AppTextStyles.labelMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                controller.excelFileName.value,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.red),
+                          onPressed: () => controller.clearExcelData(),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'File Berhasil Dipilih',
-                              style: AppTextStyles.labelMedium.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              controller.excelFileName.value,
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
-                        onPressed: () => controller.clearExcelData(),
-                      ),
-                    ],
-                  ),
-                )),
+          ),
         ],
       ),
     );
@@ -338,10 +332,7 @@ class UploadExcelScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withOpacity(0.03),
-                    Colors.white,
-                  ],
+                  colors: [AppColors.primary.withOpacity(0.03), Colors.white],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -441,11 +432,7 @@ class UploadExcelScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.analytics,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  Icon(Icons.analytics, color: Colors.white, size: 24),
                   const SizedBox(width: 12),
                   Text(
                     'SUBMIT PREDIKSI',

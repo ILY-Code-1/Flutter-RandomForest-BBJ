@@ -30,24 +30,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => Navigator.of(context).pop(),
             )
           : showLogo
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.water_drop,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                )
-              : null,
+          ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+              ),
+            )
+          : null,
       title: Text(
         title,
         style: AppTextStyles.appBarTitle,
+        maxLines: 2,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
       ),
       centerTitle: true,
       actions: actions,

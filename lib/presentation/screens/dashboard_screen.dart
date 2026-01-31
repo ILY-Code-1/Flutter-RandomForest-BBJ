@@ -23,41 +23,12 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CustomAppBar(
-        title: 'BPR BOGOR JABAR RANDOM FOREST APP',
+        title: "BPR BOGOR JABAR\nRANDOM FOREST APP",
         showLogo: true,
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'users' && authController.isAdmin) {
-                Get.toNamed(AppRoutes.users);
-              } else if (value == 'logout') {
-                _showLogoutDialog(context, authController);
-              }
-            },
-            itemBuilder: (context) => [
-              if (authController.isAdmin)
-                const PopupMenuItem(
-                  value: 'users',
-                  child: Row(
-                    children: [
-                      Icon(Icons.people),
-                      SizedBox(width: 8),
-                      Text('Kelola User'),
-                    ],
-                  ),
-                ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout),
-                    SizedBox(width: 8),
-                    Text('Logout'),
-                  ],
-                ),
-              ),
-            ],
+          IconButton(
+            onPressed: () => _showLogoutDialog(context, authController),
+            icon: const Icon(Icons.logout, color: Colors.white),
           ),
         ],
       ),
@@ -97,11 +68,7 @@ class DashboardScreen extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(
-              Icons.park,
-              size: 50,
-              color: AppColors.secondary,
-            ),
+            Icon(Icons.park, size: 50, color: AppColors.secondary),
             Positioned(
               right: 5,
               bottom: 5,
@@ -127,28 +94,30 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildHasilPrediksi(PredictionController controller) {
-    return Obx(() => GreenInfoCard(
-          title: 'Hasil Prediksi',
-          child: Row(
-            children: [
-              Expanded(
-                child: YellowStatBox(
-                  icon: Icons.person,
-                  label: 'Nasabah Aktif',
-                  value: controller.totalNasabahAktif.toString(),
-                ),
+    return Obx(
+      () => GreenInfoCard(
+        title: 'Hasil Prediksi',
+        child: Row(
+          children: [
+            Expanded(
+              child: YellowStatBox(
+                icon: Icons.person,
+                label: 'Nasabah Aktif',
+                value: controller.totalNasabahAktif.toString(),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: YellowStatBox(
-                  icon: Icons.person_off,
-                  label: 'Nasabah Pasif',
-                  value: controller.totalNasabahTidakAktif.toString(),
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: YellowStatBox(
+                icon: Icons.person_off,
+                label: 'Nasabah Pasif',
+                value: controller.totalNasabahTidakAktif.toString(),
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildCaraKerja() {
@@ -233,19 +202,14 @@ class DashboardScreen extends StatelessWidget {
         title: const Text('Logout'),
         content: const Text('Apakah Anda yakin ingin keluar?'),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Batal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
           ElevatedButton(
             onPressed: () async {
               Get.back();
               await authController.logout();
               Get.offAllNamed(AppRoutes.login);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Logout'),
           ),
         ],

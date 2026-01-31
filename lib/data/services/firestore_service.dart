@@ -9,7 +9,7 @@ class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Collection name
-  static const String predictionsCollection = 'predictions';
+  static const String predictionsCollection = 'prediction_bbj';
 
   // Simpan prediction session ke Firestore
   Future<void> savePredictionSession(PredictionSessionModel session) async {
@@ -45,12 +45,17 @@ class FirestoreService {
       final snapshot = await _firestore
           .collection(predictionsCollection)
           .where('assignedUserIds', arrayContains: userId)
-          .orderBy('tanggalPrediksi', descending: true)
           .get();
 
-      return snapshot.docs
+      // Sort locally to avoid Firestore index requirement
+      final sessions = snapshot.docs
           .map((doc) => PredictionSessionModel.fromJson(doc.data()))
           .toList();
+
+      // Sort by tanggalPrediksi descending
+      sessions.sort((a, b) => b.tanggalPrediksi.compareTo(a.tanggalPrediksi));
+
+      return sessions;
     } catch (e) {
       throw Exception('Gagal mengambil prediksi: ${e.toString()}');
     }
@@ -150,10 +155,16 @@ class FirestoreService {
     return _firestore
         .collection(predictionsCollection)
         .where('assignedUserIds', arrayContains: userId)
-        .orderBy('tanggalPrediksi', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PredictionSessionModel.fromJson(doc.data()))
-            .toList());
+        .map((snapshot) {
+          final sessions = snapshot.docs
+              .map((doc) => PredictionSessionModel.fromJson(doc.data()))
+              .toList();
+
+          // Sort by tanggalPrediksi descending
+          sessions.sort((a, b) => b.tanggalPrediksi.compareTo(a.tanggalPrediksi));
+
+          return sessions;
+        });
   }
 }

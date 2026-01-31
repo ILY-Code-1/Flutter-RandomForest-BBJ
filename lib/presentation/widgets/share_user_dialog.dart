@@ -41,13 +41,13 @@ class _ShareUserDialogState extends State<ShareUserDialog> {
 
   Future<void> _saveAssignments() async {
     setState(() => isSaving = true);
-    
+
     try {
       await firestoreService.updateAssignedUsers(
         widget.session.id,
         selectedUserIds.toList(),
       );
-      
+
       Get.back(result: true);
       Get.snackbar(
         'Berhasil',
@@ -68,9 +68,7 @@ class _ShareUserDialogState extends State<ShareUserDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxHeight: 500),
         padding: const EdgeInsets.all(20),
@@ -86,10 +84,7 @@ class _ShareUserDialogState extends State<ShareUserDialog> {
                 const Expanded(
                   child: Text(
                     'Bagikan ke User',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
@@ -101,10 +96,7 @@ class _ShareUserDialogState extends State<ShareUserDialog> {
             const SizedBox(height: 8),
             Text(
               'Pilih user yang dapat melihat prediksi ini',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const Divider(height: 24),
 
@@ -113,79 +105,83 @@ class _ShareUserDialogState extends State<ShareUserDialog> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : allUsers.isEmpty
-                      ? const Center(child: Text('Tidak ada user'))
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: allUsers.length,
-                          itemBuilder: (context, index) {
-                            final user = allUsers[index];
-                            final isSelected = selectedUserIds.contains(user.id);
-                            final isCurrentUser = user.id == authController.currentUser.value?.id;
+                  ? const Center(child: Text('Tidak ada user'))
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: allUsers.length,
+                      itemBuilder: (context, index) {
+                        final user = allUsers[index];
+                        final isSelected = selectedUserIds.contains(user.id);
+                        final isCurrentUser =
+                            user.id == authController.currentUser.value?.id;
 
-                            return CheckboxListTile(
-                              value: isSelected,
-                              onChanged: isCurrentUser ? null : (value) {
-                                setState(() {
-                                  if (value == true) {
-                                    selectedUserIds.add(user.id);
-                                  } else {
-                                    selectedUserIds.remove(user.id);
-                                  }
-                                });
-                              },
-                              title: Text(user.nama),
-                              subtitle: Text('${user.email} • ${user.role}'),
-                              secondary: CircleAvatar(
-                                backgroundColor: user.isAdmin
-                                    ? AppColors.primary
-                                    : AppColors.secondary,
-                                child: Text(
-                                  user.nama[0].toUpperCase(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              activeColor: AppColors.primary,
-                            );
-                          },
-                        ),
+                        return CheckboxListTile(
+                          value: isSelected,
+                          onChanged: isCurrentUser
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      selectedUserIds.add(user.id);
+                                    } else {
+                                      selectedUserIds.remove(user.id);
+                                    }
+                                  });
+                                },
+                          title: Text(user.nama),
+                          subtitle: Text('${user.email} • ${user.role}'),
+                          secondary: CircleAvatar(
+                            backgroundColor: user.isAdmin
+                                ? AppColors.primary
+                                : AppColors.secondary,
+                            child: Text(
+                              user.nama[0].toUpperCase(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          activeColor: AppColors.primary,
+                        );
+                      },
+                    ),
             ),
 
             // Footer
             const Divider(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              spacing: 12,
               children: [
                 Text(
                   '${selectedUserIds.length} user dipilih',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
                 Row(
                   children: [
-                    TextButton(
-                      onPressed: isSaving ? null : () => Get.back(),
-                      child: const Text('Batal'),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: isSaving ? null : _saveAssignments,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                      ),
-                      child: isSaving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : const Text('Simpan'),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: isSaving ? null : () => Get.back(),
+                          child: const Text('Batal'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: isSaving ? null : _saveAssignments,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                          ),
+                          child: isSaving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text('Simpan'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/navigation_controller.dart';
-import '../../controllers/prediction_controller.dart';
 import '../../core/theme/app_colors.dart';
 import 'dashboard_screen.dart';
 import 'riwayat_prediksi_screen.dart';
@@ -22,10 +21,12 @@ class MarketingMainScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      body: Obx(() => IndexedStack(
-            index: navigationController.currentIndex.value,
-            children: screens,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: navigationController.currentIndex.value,
+          children: screens,
+        ),
+      ),
       bottomNavigationBar: Obx(() => _buildBottomNavBar(navigationController)),
     );
   }

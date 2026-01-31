@@ -2,8 +2,6 @@
 // Entry point aplikasi BPR Bogor Jabar Random Forest.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_randomdforest_bbj/presentation/screens/login_screen.dart';
-import 'package:flutter_randomdforest_bbj/presentation/screens/main_screen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_theme.dart';

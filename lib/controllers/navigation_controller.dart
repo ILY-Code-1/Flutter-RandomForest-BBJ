@@ -21,4 +21,8 @@ class NavigationController extends GetxController {
   void goToHistory() {
     currentIndex.value = 2;
   }
+
+  void goToManageUsers() {
+    currentIndex.value = 3;
+  }
 }

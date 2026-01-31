@@ -45,9 +45,7 @@ class _UsersScreenState extends State<UsersScreen> {
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Hapus'),
           ),
         ],
@@ -69,47 +67,38 @@ class _UsersScreenState extends State<UsersScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : users.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.people_outline,
-                        size: 64,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Belum ada user',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    size: 64,
+                    color: Colors.grey.shade400,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadUsers,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: users.length,
-                    itemBuilder: (context, index) {
-                      final user = users[index];
-                      return _buildUserCard(user);
-                    },
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada user',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                   ),
-                ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Get.to(() => const AddEditUserScreen());
-          if (result == true) {
-            _loadUsers();
-          }
-        },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
-      ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadUsers,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: users.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == users.length) {
+                    return _buildAddUserButton(); // 👈 tombol di bawah
+                  }
+
+                  final user = users[index];
+                  return _buildUserCard(user);
+                },
+              ),
+            ),
     );
   }
 
@@ -119,13 +108,13 @@ class _UsersScreenState extends State<UsersScreen> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         leading: CircleAvatar(
-          backgroundColor: user.isAdmin ? AppColors.primary : AppColors.secondary,
+          backgroundColor: user.isAdmin
+              ? AppColors.primary
+              : AppColors.secondary,
           child: Text(
             user.nama[0].toUpperCase(),
             style: const TextStyle(
@@ -156,7 +145,7 @@ class _UsersScreenState extends State<UsersScreen> {
                   'Anda',
                   style: TextStyle(
                     fontSize: 10,
-                    color: AppColors.primary,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -169,10 +158,7 @@ class _UsersScreenState extends State<UsersScreen> {
             const SizedBox(height: 4),
             Text(
               user.email,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
             const SizedBox(height: 4),
             Container(
@@ -180,7 +166,7 @@ class _UsersScreenState extends State<UsersScreen> {
               decoration: BoxDecoration(
                 color: user.isAdmin
                     ? AppColors.primaryLight
-                    : Colors.green.shade50,
+                    : AppColors.secondary,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -188,7 +174,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: user.isAdmin ? AppColors.primary : Colors.green,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -216,6 +202,25 @@ class _UsersScreenState extends State<UsersScreen> {
                 onPressed: () => _deleteUser(user),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddUserButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 32),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.person_add),
+          label: const Text('Tambah User'),
+          onPressed: () async {
+            final result = await Get.to(() => const AddEditUserScreen());
+            if (result == true) {
+              _loadUsers();
+            }
+          },
         ),
       ),
     );

@@ -27,17 +27,48 @@ class DetailPrediksiScreen extends StatefulWidget {
 
 class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
   FilterStatus _selectedFilter = FilterStatus.semua;
+  bool _isRefreshing = false;
+
+  Future<void> _refreshData() async {
+    setState(() => _isRefreshing = true);
+
+    try {
+      final controller = Get.find<PredictionController>();
+      final sessionId = controller.currentSession.value?.id;
+
+      if (sessionId != null) {
+        // Reload data dari Firestore
+        await controller.loadSessions();
+
+        // Update current session dengan data terbaru
+        final updatedSession = controller.predictionSessions.firstWhereOrNull(
+          (s) => s.id == sessionId,
+        );
+
+        if (updatedSession != null) {
+          controller.setCurrentSession(updatedSession);
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal refresh data: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      setState(() => _isRefreshing = false);
+    }
+  }
 
   List<NasabahModel> _getFilteredNasabah(List<NasabahModel> allNasabah) {
     switch (_selectedFilter) {
       case FilterStatus.aktif:
         return allNasabah.where((n) => n.finalPrediksi == 'Aktif').toList();
       case FilterStatus.tidakAktif:
-        return allNasabah
-            .where((n) => n.finalPrediksi == 'Pasif')
-            .toList();
+        return allNasabah.where((n) => n.finalPrediksi == 'Pasif').toList();
       case FilterStatus.semua:
-      default:
         return allNasabah;
     }
   }
@@ -53,6 +84,20 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
         title: 'DETAIL PREDIKSI',
         showBackButton: true,
         actions: [
+          // Refresh button
+          IconButton(
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.refresh),
+            onPressed: _isRefreshing ? null : _refreshData,
+          ),
           // Share button (admin only)
           if (authController.isAdmin)
             IconButton(
@@ -70,9 +115,10 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
             icon: const Icon(Icons.comment),
             onPressed: () {
               if (controller.currentSession.value != null) {
-                Get.to(() => CommentsScreen(
-                      session: controller.currentSession.value!,
-                    ));
+                Get.to(
+                  () =>
+                      CommentsScreen(session: controller.currentSession.value!),
+                );
               }
             },
           ),
@@ -96,81 +142,87 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DetailHeaderCard(
-                      jumlahData: session.jumlahData,
-                      akurasi: session.akurasi,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildDownloadButton(context, session),
-                    const SizedBox(height: 12),
-                    _buildCommentButton(context, session),
-                    const SizedBox(height: 16),
-                    _buildSummarySection(nasabahAktif, nasabahTidakAktif),
-                    const SizedBox(height: 16),
-                    _buildFilterButtons(
-                      nasabahAktif.length,
-                      nasabahTidakAktif.length,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Detail Nasabah', style: AppTextStyles.h3),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppColors.primary.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Text(
-                            '${filteredNasabah.length} data',
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (filteredNasabah.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.search_off,
-                                size: 64,
-                                color: AppColors.textSecondary.withOpacity(0.5),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Tidak ada data nasabah',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    else
-                      ...filteredNasabah.map(
-                        (nasabah) => NasabahDetailCard(nasabah: nasabah),
+              return RefreshIndicator(
+                onRefresh: _refreshData,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DetailHeaderCard(
+                        jumlahData: session.jumlahData,
+                        akurasi: session.akurasi,
                       ),
-                  ],
+                      const SizedBox(height: 12),
+                      _buildDownloadButton(context, session),
+                      const SizedBox(height: 12),
+                      _buildCommentButton(context, session),
+                      const SizedBox(height: 16),
+                      _buildSummarySection(nasabahAktif, nasabahTidakAktif),
+                      const SizedBox(height: 16),
+                      _buildFilterButtons(
+                        nasabahAktif.length,
+                        nasabahTidakAktif.length,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Detail Nasabah', style: AppTextStyles.h3),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Text(
+                              '${filteredNasabah.length} data',
+                              style: AppTextStyles.labelMedium.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (filteredNasabah.isEmpty)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.search_off,
+                                  size: 64,
+                                  color: AppColors.textSecondary.withOpacity(
+                                    0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Tidak ada data nasabah',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        ...filteredNasabah.map(
+                          (nasabah) => NasabahDetailCard(nasabah: nasabah),
+                        ),
+                    ],
+                  ),
                 ),
               );
             },
