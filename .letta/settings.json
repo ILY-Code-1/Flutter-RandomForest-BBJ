@@ -9,7 +9,9 @@
       "Write(**)",
       "Bash(dart run generate_template.dart)",
       "Bash(cd C:\\Flutter\\FlutterProjects\\flutter_randomdforest_bbj && dir /s /b *.xlsx *.xls 2>$null)",
-      "Bash(dir ~/.letta/agents/agent-3887106f-e086-4fbc-b7d6-8e53bf00783f\\memory 2>$null)"
+      "Bash(dir ~/.letta/agents/agent-3887106f-e086-4fbc-b7d6-8e53bf00783f\\memory 2>$null)",
+      "Bash(dir)",
+      "Bash(mkdir dokumentasi)"
     ]
   }
 }
