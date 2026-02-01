@@ -200,8 +200,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                 decoration: BoxDecoration(
                                   color: isOwnComment
                                       ? AppColors.primaryLight
-                                      : Colors.grey.shade100,
+                                      : AppColors.secondary.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isOwnComment
+                                        ? AppColors.primary.withOpacity(0.3)
+                                        : AppColors.secondary.withOpacity(0.3),
+                                    width: 1,
+                                  ),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,9 +216,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                       children: [
                                         Text(
                                           comment.userName,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
+                                            color: isOwnComment
+                                                ? Colors.white
+                                                : AppColors.textPrimary,
                                           ),
                                         ),
                                         const SizedBox(width: 8),
@@ -224,7 +233,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                           decoration: BoxDecoration(
                                             color: comment.userRole == 'admin'
                                                 ? AppColors.primary
-                                                : Colors.green,
+                                                : AppColors.secondary,
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
@@ -240,7 +249,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                         if (canDelete)
                                           IconButton(
                                             icon: const Icon(Icons.delete, size: 18),
-                                            color: Colors.red,
+                                            color: isOwnComment
+                                                ? Colors.white70
+                                                : Colors.red,
                                             padding: EdgeInsets.zero,
                                             constraints: const BoxConstraints(),
                                             onPressed: () => _deleteComment(comment),
@@ -250,7 +261,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       comment.text,
-                                      style: const TextStyle(fontSize: 14),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isOwnComment
+                                            ? Colors.white
+                                            : AppColors.textPrimary,
+                                      ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -258,7 +274,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                           .format(comment.createdAt),
                                       style: TextStyle(
                                         fontSize: 11,
-                                        color: Colors.grey.shade600,
+                                        color: isOwnComment
+                                            ? Colors.white70
+                                            : Colors.grey.shade600,
                                       ),
                                     ),
                                   ],

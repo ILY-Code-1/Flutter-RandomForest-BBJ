@@ -28,7 +28,7 @@ class DashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => _showLogoutDialog(context, authController),
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.red),
           ),
         ],
       ),

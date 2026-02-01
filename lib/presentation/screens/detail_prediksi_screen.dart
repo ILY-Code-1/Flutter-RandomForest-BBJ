@@ -15,6 +15,7 @@ import '../widgets/stat_card.dart';
 import '../widgets/nasabah_detail_card.dart';
 import '../widgets/share_user_dialog.dart';
 import 'comments_screen.dart';
+import '../../routes/app_routes.dart';
 
 enum FilterStatus { semua, aktif, tidakAktif }
 
@@ -104,21 +105,27 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
               icon: const Icon(Icons.share),
               onPressed: () async {
                 if (controller.currentSession.value != null) {
-                  await Get.dialog(
+                  final result = await Get.dialog<bool>(
                     ShareUserDialog(session: controller.currentSession.value!),
                   );
+                  // Refresh data jika assignment berhasil
+                  if (result == true) {
+                    _refreshData();
+                  }
                 }
               },
             ),
           // Comment button (both roles)
           IconButton(
             icon: const Icon(Icons.comment),
-            onPressed: () {
+            onPressed: () async {
               if (controller.currentSession.value != null) {
-                Get.to(
+                await Get.to(
                   () =>
                       CommentsScreen(session: controller.currentSession.value!),
                 );
+                // Refresh data setelah kembali dari halaman komentar
+                _refreshData();
               }
             },
           ),
@@ -158,6 +165,8 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
                       _buildDownloadButton(context, session),
                       const SizedBox(height: 12),
                       _buildCommentButton(context, session),
+                      const SizedBox(height: 12),
+                      _buildFollowUpButton(context, session),
                       const SizedBox(height: 16),
                       _buildSummarySection(nasabahAktif, nasabahTidakAktif),
                       const SizedBox(height: 16),
@@ -608,14 +617,73 @@ class _DetailPrediksiScreenState extends State<DetailPrediksiScreen> {
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: () {
+          onPressed: () async {
             if (session != null) {
-              Get.to(() => CommentsScreen(session: session));
+              await Get.to(() => CommentsScreen(session: session));
+              // Refresh data setelah kembali dari halaman komentar
+              _refreshData();
             }
           },
           icon: const Icon(Icons.comment, color: Colors.white, size: 24),
           label: Text(
             'Komentar (${session?.comments?.length ?? 0})',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFollowUpButton(BuildContext context, dynamic session) {
+    // Hitung jumlah nasabah yang sudah di-follow up
+    int followedUpCount = 0;
+    if (session != null && session.nasabahList != null) {
+      followedUpCount = session.nasabahList
+          .where((n) => n.followUpStatus == true)
+          .length;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.accent, AppColors.accentDark],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accent.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () async {
+            if (session != null) {
+              await Get.toNamed(AppRoutes.followUp);
+              // Refresh data setelah kembali dari halaman follow up
+              _refreshData();
+            }
+          },
+          icon: const Icon(Icons.assignment_turned_in, color: Colors.white, size: 24),
+          label: Text(
+            'Follow Up ($followedUpCount/${session?.nasabahList?.length ?? 0})',
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,

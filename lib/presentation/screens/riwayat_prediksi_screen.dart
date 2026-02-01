@@ -47,9 +47,11 @@ class RiwayatPrediksiScreen extends StatelessWidget {
                 
                 return RiwayatListItem(
                   session: session,
-                  onView: () {
+                  onView: () async {
                     controller.setCurrentSession(session);
-                    Get.toNamed(AppRoutes.detail);
+                    await Get.toNamed(AppRoutes.detail);
+                    // Refresh data setelah kembali dari halaman detail
+                    controller.loadSessions();
                   },
                   onDelete: isAdmin ? () {
                     _showDeleteDialog(context, controller, session.id, session.flag);

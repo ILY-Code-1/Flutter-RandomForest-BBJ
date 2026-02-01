@@ -167,4 +167,65 @@ class FirestoreService {
           return sessions;
         });
   }
+
+  // Update follow up status untuk nasabah tertentu
+  Future<void> updateFollowUpStatus(
+    String predictionId,
+    String nasabahId,
+    bool status,
+  ) async {
+    try {
+      final doc = await _firestore
+          .collection(predictionsCollection)
+          .doc(predictionId)
+          .get();
+
+      if (doc.exists) {
+        final session = PredictionSessionModel.fromJson(doc.data()!);
+        final updatedNasabahList = session.nasabahList.map((nasabah) {
+          if (nasabah.id == nasabahId) {
+            return nasabah.copyWith(followUpStatus: status);
+          }
+          return nasabah;
+        }).toList();
+
+        await _firestore.collection(predictionsCollection).doc(predictionId).update({
+          'nasabahList': updatedNasabahList.map((n) => n.toJson()).toList(),
+        });
+      }
+    } catch (e) {
+      throw Exception('Gagal update follow up status: ${e.toString()}');
+    }
+  }
+
+  // Update multiple follow up statuses sekaligus
+  Future<void> updateMultipleFollowUpStatus(
+    String predictionId,
+    Map<String, bool> followUpUpdates,
+  ) async {
+    try {
+      final doc = await _firestore
+          .collection(predictionsCollection)
+          .doc(predictionId)
+          .get();
+
+      if (doc.exists) {
+        final session = PredictionSessionModel.fromJson(doc.data()!);
+        final updatedNasabahList = session.nasabahList.map((nasabah) {
+          if (followUpUpdates.containsKey(nasabah.id)) {
+            return nasabah.copyWith(
+              followUpStatus: followUpUpdates[nasabah.id]!,
+            );
+          }
+          return nasabah;
+        }).toList();
+
+        await _firestore.collection(predictionsCollection).doc(predictionId).update({
+          'nasabahList': updatedNasabahList.map((n) => n.toJson()).toList(),
+        });
+      }
+    } catch (e) {
+      throw Exception('Gagal update follow up status: ${e.toString()}');
+    }
+  }
 }

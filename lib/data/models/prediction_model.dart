@@ -18,6 +18,7 @@ class NasabahModel {
   final List<String> prediksiPohon; // Hasil dari setiap pohon
   final String finalPrediksi;
   final String evaluasi; // Benar/Salah
+  final bool followUpStatus; // Status follow up (true = sudah, false = belum)
 
   NasabahModel({
     required this.id,
@@ -34,6 +35,7 @@ class NasabahModel {
     required this.prediksiPohon,
     required this.finalPrediksi,
     required this.evaluasi,
+    this.followUpStatus = false, // Default false
   });
 
   NasabahModel copyWith({
@@ -51,6 +53,7 @@ class NasabahModel {
     List<String>? prediksiPohon,
     String? finalPrediksi,
     String? evaluasi,
+    bool? followUpStatus,
   }) {
     return NasabahModel(
       id: id ?? this.id,
@@ -67,6 +70,7 @@ class NasabahModel {
       prediksiPohon: prediksiPohon ?? this.prediksiPohon,
       finalPrediksi: finalPrediksi ?? this.finalPrediksi,
       evaluasi: evaluasi ?? this.evaluasi,
+      followUpStatus: followUpStatus ?? this.followUpStatus,
     );
   }
 
@@ -86,6 +90,7 @@ class NasabahModel {
       'prediksiPohon': prediksiPohon,
       'finalPrediksi': finalPrediksi,
       'evaluasi': evaluasi,
+      'followUpStatus': followUpStatus,
     };
   }
 
@@ -105,6 +110,7 @@ class NasabahModel {
       prediksiPohon: List<String>.from(json['prediksiPohon']),
       finalPrediksi: json['finalPrediksi'] as String,
       evaluasi: json['evaluasi'] as String,
+      followUpStatus: json['followUpStatus'] as bool? ?? false,
     );
   }
 }

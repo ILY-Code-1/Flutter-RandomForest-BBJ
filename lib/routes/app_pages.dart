@@ -13,6 +13,7 @@ import '../presentation/screens/form_prediksi_screen.dart';
 import '../presentation/screens/upload_excel_screen.dart';
 import '../presentation/screens/users_screen.dart';
 import '../presentation/screens/add_edit_user_screen.dart';
+import '../presentation/screens/follow_up_screen.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -64,6 +65,10 @@ class AppPages {
       page: () => AddEditUserScreen(
         user: Get.arguments,
       ),
+    ),
+    GetPage(
+      name: AppRoutes.followUp,
+      page: () => const FollowUpScreen(),
     ),
   ];
 }

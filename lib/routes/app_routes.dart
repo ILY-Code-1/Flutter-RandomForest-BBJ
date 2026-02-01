@@ -16,4 +16,5 @@ class AppRoutes {
   static const String addUser = '/add-user';
   static const String editUser = '/edit-user';
   static const String comments = '/comments';
+  static const String followUp = '/follow-up';
 }
