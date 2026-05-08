@@ -110,22 +110,18 @@ class RandomForestService {
   // MAIN PREDICTION METHOD
   // ═══════════════════════════════════════════════════════════════════════════
   NasabahModel predict(NasabahInputModel input, String id, String idNasabah) {
-    // Jalankan semua pohon dan kumpulkan hasil
     List<String> hasilPohon = [];
     for (var pohon in _semuaPohon) {
       hasilPohon.add(pohon(input));
     }
 
-    // Voting majority
     int countAktif = hasilPohon.where((h) => h == aktif).length;
     int countTidakAktif = hasilPohon.where((h) => h == tidakAktif).length;
 
     String finalPrediksi = countAktif > countTidakAktif ? aktif : tidakAktif;
 
-    // Prediksi awal berdasarkan status saat ini
     String prediksiAwal = input.statusNasabah;
 
-    // Evaluasi apakah prediksi benar
     String evaluasi = (finalPrediksi == input.statusNasabah) ? 'Benar' : 'Salah';
 
     return NasabahModel(
@@ -146,18 +142,55 @@ class RandomForestService {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════
-  // POHON 1: Fokus pada Frekuensi Transaksi & Saldo Rata-rata
+  // ─────────────────────────────────────────────────────────────────────────────
+  // HELPER METHODS for Pekerjaan Categorization (kode-based)
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Format input.pekerjaan: "005 ADMINISTRASI UMUM", "013 WIRASWASTA", dll.
+  // Kode: 005=Administrasi, 007=Konsultan, 009=Pengajar, 013=Wiraswasta,
+  //       026=Pengamanan, 032=Buruh, 034=IRT, 035=Informal, 099=Lain-lain
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  String _kodePekerjaan(NasabahInputModel input) {
+    if (input.pekerjaan.length >= 3) {
+      return input.pekerjaan.substring(0, 3);
+    }
+    return '';
+  }
+
+  bool _isPekerjaanStabil(NasabahInputModel input) {
+    return ['005', '007', '009', '026'].contains(_kodePekerjaan(input));
+  }
+
+  bool _isPekerjaanWiraswasta(NasabahInputModel input) {
+    return _kodePekerjaan(input) == '013';
+  }
+
+  bool _isPekerjaanRentan(NasabahInputModel input) {
+    return ['032', '034', '035', '099'].contains(_kodePekerjaan(input));
+  }
+
+  bool _isIRTatauInformal(NasabahInputModel input) {
+    return ['034', '035'].contains(_kodePekerjaan(input));
+  }
+
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 1: Fokus pada Frekuensi Transaksi & Saldo Rata-rata (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   // Logika:
-  // - Jika frekuensi transaksi >= 10 dan saldo >= 3jt -> Aktif
-  // - Jika frekuensi transaksi >= 5 dan saldo >= 5jt -> Aktif
+  // - Jika frekuensi transaksi >= 8 dan saldo >= 1jt -> Aktif
+  // - Jika frekuensi transaksi >= 5 dan saldo >= 3jt -> Aktif
+  // - Jika frekuensi transaksi >= 12 -> Aktif (sangat sering transaksi)
   // - Selain itu -> Pasif
   String _pohon1(NasabahInputModel input) {
-    if (input.frekuensiTransaksi >= 10 && input.saldoRataRata >= 3000000) {
+    if (input.frekuensiTransaksi >= 8 && input.saldoRataRata >= 1000000) {
       return aktif;
     }
-    if (input.frekuensiTransaksi >= 5 && input.saldoRataRata >= 5000000) {
+    if (input.frekuensiTransaksi >= 5 && input.saldoRataRata >= 3000000) {
+      return aktif;
+    }
+    if (input.frekuensiTransaksi >= 12) {
       return aktif;
     }
     return tidakAktif;
@@ -189,91 +222,90 @@ class RandomForestService {
   // ═══════════════════════════════════════════════════════════════════════════
   // Logika:
   // - Lama >= 3 tahun -> Aktif (nasabah loyal)
-  // - Lama >= 1 tahun dengan pekerjaan stabil (PNS, Karyawan, Profesional) -> Aktif
-  // - Lama < 1 tahun dengan frekuensi >= 15 -> Aktif (nasabah baru aktif)
+  // - Lama >= 1 tahun dengan pekerjaan stabil (005,007,009,026) -> Aktif
+  // - Lama < 1 tahun dengan frekuensi >= 10 -> Aktif (nasabah baru aktif)
   // - Selain itu -> Pasif
   String _pohon3(NasabahInputModel input) {
     if (input.lamaMenjadiNasabah >= 3) {
       return aktif;
     }
 
-    List<String> pekerjaanStabil = ['pns', 'karyawan', 'profesional', 'dokter', 'guru', 'dosen'];
-    String pekerjaanLower = input.pekerjaan.toLowerCase();
-    bool isPekerjaanStabil = pekerjaanStabil.any((p) => pekerjaanLower.contains(p));
-
-    if (input.lamaMenjadiNasabah >= 1 && isPekerjaanStabil) {
+    if (input.lamaMenjadiNasabah >= 1 && _isPekerjaanStabil(input)) {
       return aktif;
     }
-    if (input.lamaMenjadiNasabah < 1 && input.frekuensiTransaksi >= 15) {
+    if (input.lamaMenjadiNasabah < 1 && input.frekuensiTransaksi >= 10) {
       return aktif;
     }
     return tidakAktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 4: Fokus pada Saldo Rata-rata & Frekuensi (lebih detail)
+  // POHON 4: Fokus pada Saldo Rata-rata & Frekuensi (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   // Logika:
   // - Saldo >= 10jt -> Aktif (high value customer)
-  // - Saldo >= 5jt dan frekuensi >= 5 -> Aktif
-  // - Saldo >= 2jt dan frekuensi >= 12 -> Aktif (aktif tapi saldo rendah)
+  // - Saldo >= 3jt dan frekuensi >= 4 -> Aktif
+  // - Saldo >= 1jt dan frekuensi >= 8 -> Aktif (tabungan aktif saldo sedang)
+  // - Frekuensi >= 15 -> Aktif (sangat aktif transaksi)
   // - Selain itu -> Pasif
   String _pohon4(NasabahInputModel input) {
     if (input.saldoRataRata >= 10000000) {
       return aktif;
     }
-    if (input.saldoRataRata >= 5000000 && input.frekuensiTransaksi >= 5) {
+    if (input.saldoRataRata >= 3000000 && input.frekuensiTransaksi >= 4) {
       return aktif;
     }
-    if (input.saldoRataRata >= 2000000 && input.frekuensiTransaksi >= 12) {
+    if (input.saldoRataRata >= 1000000 && input.frekuensiTransaksi >= 8) {
+      return aktif;
+    }
+    if (input.frekuensiTransaksi >= 15) {
       return aktif;
     }
     return tidakAktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 5: Kombinasi Pendapatan, Transaksi, Lama Nasabah
+  // POHON 5: Kombinasi Pendapatan, Transaksi, Lama Nasabah (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   // Logika:
-  // - Pendapatan >= 7jt dan transaksi >= 8 -> Aktif
-  // - Pendapatan >= 5jt dan lama >= 2 tahun -> Aktif
-  // - Transaksi >= 20 (sangat aktif) -> Aktif
-  // - Pendapatan < 3jt dan transaksi < 3 -> Pasif
-  // - Selain itu perlu analisis lebih -> Pasif
+  // - Pendapatan >= 5jt dan transaksi >= 6 -> Aktif
+  // - Pendapatan >= 3jt dan lama >= 2 tahun -> Aktif
+  // - Transaksi >= 12 (sangat aktif, cocok untuk tabungan) -> Aktif
+  // - Selain itu -> Pasif
   String _pohon5(NasabahInputModel input) {
-    if (input.pendapatanBulanan >= 7000000 && input.frekuensiTransaksi >= 8) {
+    if (input.pendapatanBulanan >= 5000000 && input.frekuensiTransaksi >= 6) {
       return aktif;
     }
-    if (input.pendapatanBulanan >= 5000000 && input.lamaMenjadiNasabah >= 2) {
+    if (input.pendapatanBulanan >= 3000000 && input.lamaMenjadiNasabah >= 2) {
       return aktif;
     }
-    if (input.frekuensiTransaksi >= 20) {
+    if (input.frekuensiTransaksi >= 12) {
       return aktif;
     }
     return tidakAktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 6: Fokus Usia, Jenis Kelamin, Pendapatan
+  // POHON 6: Fokus Usia, Jenis Kelamin, Pendapatan (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   // Logika:
-  // - Usia 30-50 dengan pendapatan >= 6jt -> Aktif (prime earning years)
-  // - Laki-laki usia >= 25 dengan pendapatan >= 5jt dan saldo >= 3jt -> Aktif
-  // - Perempuan dengan pendapatan >= 4jt dan frekuensi >= 10 -> Aktif
+  // - Usia 25-55 dengan pendapatan >= 5jt -> Aktif
+  // - Laki-laki usia >= 25 dengan pendapatan >= 3jt dan saldo >= 2jt -> Aktif
+  // - Perempuan dengan pendapatan >= 3jt dan frekuensi >= 6 -> Aktif
   // - Selain itu -> Pasif
   String _pohon6(NasabahInputModel input) {
-    if (input.usia >= 30 && input.usia <= 50 && input.pendapatanBulanan >= 6000000) {
+    if (input.usia >= 25 && input.usia <= 55 && input.pendapatanBulanan >= 5000000) {
       return aktif;
     }
     if (input.jenisKelamin == 'Laki-laki' &&
         input.usia >= 25 &&
-        input.pendapatanBulanan >= 5000000 &&
-        input.saldoRataRata >= 3000000) {
+        input.pendapatanBulanan >= 3000000 &&
+        input.saldoRataRata >= 2000000) {
       return aktif;
     }
     if (input.jenisKelamin == 'Perempuan' &&
-        input.pendapatanBulanan >= 4000000 &&
-        input.frekuensiTransaksi >= 10) {
+        input.pendapatanBulanan >= 3000000 &&
+        input.frekuensiTransaksi >= 6) {
       return aktif;
     }
     return tidakAktif;
@@ -293,25 +325,22 @@ class RandomForestService {
     if (input.usia >= 25 && input.usia <= 55) skor++;
 
     // Pendapatan bagus (+1)
-    if (input.pendapatanBulanan >= 5000000) skor++;
+    if (input.pendapatanBulanan >= 4000000) skor++;
 
     // Frekuensi transaksi aktif (+1)
-    if (input.frekuensiTransaksi >= 8) skor++;
+    if (input.frekuensiTransaksi >= 6) skor++;
 
     // Saldo cukup (+1)
-    if (input.saldoRataRata >= 3000000) skor++;
+    if (input.saldoRataRata >= 2000000) skor++;
 
     // Nasabah lama (+1)
     if (input.lamaMenjadiNasabah >= 2) skor++;
 
-    // Pekerjaan tetap (+1)
-    List<String> pekerjaanTetap = ['pns', 'karyawan', 'swasta', 'profesional', 'dokter', 'guru', 'wiraswasta'];
-    String pekerjaanLower = input.pekerjaan.toLowerCase();
-    bool hasPekerjaanTetap = pekerjaanTetap.any((p) => pekerjaanLower.contains(p));
-    if (hasPekerjaanTetap) skor++;
+    // Pekerjaan stabil (005,007,009,013,026: +1)
+    if (_isPekerjaanStabil(input) || _isPekerjaanWiraswasta(input)) skor++;
 
-    // Pendapatan sangat tinggi (+1 bonus)
-    if (input.pendapatanBulanan >= 10000000) skor++;
+    // Bonus frekuensi tinggi (+1)
+    if (input.frekuensiTransaksi >= 12) skor++;
 
     return skor >= 4 ? aktif : tidakAktif;
   }
@@ -327,10 +356,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 9: Pekerjaan PNS DAN Frekuensi >= 5
+  // POHON 9: Pekerjaan Stabil (005,007,009,026) DAN Frekuensi >= 4
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon9(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('pns') && input.frekuensiTransaksi >= 5) {
+    if (_isPekerjaanStabil(input) && input.frekuensiTransaksi >= 4) {
       return aktif;
     }
     return tidakAktif;
@@ -347,31 +376,30 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 11: Pendapatan >= 5jt DAN Saldo >= 2jt
+  // POHON 11: Pendapatan >= 3jt DAN Saldo >= 1jt (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon11(NasabahInputModel input) {
-    if (input.pendapatanBulanan >= 5000000 && input.saldoRataRata >= 2000000) {
+    if (input.pendapatanBulanan >= 3000000 && input.saldoRataRata >= 1000000) {
       return aktif;
     }
     return tidakAktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // POHON 12: Pekerjaan Pegawai Tetap DAN Frekuensi >= 6
+  // POHON 12: Pekerjaan Stabil (005,007,009,026) DAN Frekuensi >= 5
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon12(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('tetap') && input.frekuensiTransaksi >= 6) {
+    if (_isPekerjaanStabil(input) && input.frekuensiTransaksi >= 5) {
       return aktif;
     }
     return tidakAktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 13: Pekerjaan Pelajar/Mahasiswa DAN Saldo < 500rb
+  // POHON 13: IRT/Informal (034,035) DAN Saldo < 500rb DAN Frekuensi < 3
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon13(NasabahInputModel input) {
-    String pekerjaanLower = input.pekerjaan.toLowerCase();
-    if ((pekerjaanLower.contains('pelajar') || pekerjaanLower.contains('mahasiswa')) && input.saldoRataRata < 500000) {
+    if (_isIRTatauInformal(input) && input.saldoRataRata < 500000 && input.frekuensiTransaksi < 3) {
       return tidakAktif;
     }
     return aktif;
@@ -408,21 +436,20 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 17: Pekerjaan Tidak Bekerja DAN Frekuensi < 3
+  // POHON 17: IRT/Informal/Buruh (032,034,035) DAN Frekuensi < 3
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon17(NasabahInputModel input) {
-    String pekerjaanLower = input.pekerjaan.toLowerCase();
-    if (pekerjaanLower.contains('tidak bekerja') && input.frekuensiTransaksi < 3) {
+    if (_isPekerjaanRentan(input) && input.frekuensiTransaksi < 3) {
       return tidakAktif;
     }
     return aktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // POHON 18: Pekerjaan Wiraswasta DAN Saldo >= 2.5jt
+  // POHON 18: Wiraswasta (013) DAN Saldo >= 2.5jt
   // ═══════════════════════════════════════════════════════════════════
   String _pohon18(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('wiraswasta') && input.saldoRataRata >= 2500000) {
+    if (_isPekerjaanWiraswasta(input) && input.saldoRataRata >= 2500000) {
       return aktif;
     }
     return tidakAktif;
@@ -469,10 +496,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 23: Frekuensi >= 10 DAN Pendapatan >= 3.5jt
+  // POHON 23: Frekuensi >= 8 DAN Pendapatan >= 2.5jt (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon23(NasabahInputModel input) {
-    if (input.frekuensiTransaksi >= 10 && input.pendapatanBulanan >= 3500000) {
+    if (input.frekuensiTransaksi >= 8 && input.pendapatanBulanan >= 2500000) {
       return aktif;
     }
     return tidakAktif;
@@ -489,10 +516,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // POHON 25: Pekerjaan PNS DAN Frekuensi >= 5
+  // POHON 25: Pekerjaan Stabil (005,007,009,026) DAN Frekuensi >= 4
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon25(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('pns') && input.frekuensiTransaksi >= 5) {
+    if (_isPekerjaanStabil(input) && input.frekuensiTransaksi >= 4) {
       return aktif;
     }
     return tidakAktif;
@@ -508,7 +535,7 @@ class RandomForestService {
     return aktif;
   }
 
-  // ═══════════════════════════���═���═════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
   // POHON 27: Usia >= 45 DAN Frekuensi < 4
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon27(NasabahInputModel input) {
@@ -579,10 +606,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 34: Pekerjaan Wiraswasta DAN Frekuensi >= 6
+  // POHON 34: Wiraswasta (013) DAN Frekuensi >= 5
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon34(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('wiraswasta') && input.frekuensiTransaksi >= 6) {
+    if (_isPekerjaanWiraswasta(input) && input.frekuensiTransaksi >= 5) {
       return aktif;
     }
     return tidakAktif;
@@ -619,10 +646,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 38: Pendapatan >= 5.5jt DAN Saldo >= 2.5jt
+  // POHON 38: Pendapatan >= 4jt DAN Saldo >= 1.5jt (Tabungan)
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon38(NasabahInputModel input) {
-    if (input.pendapatanBulanan >= 5500000 && input.saldoRataRata >= 2500000) {
+    if (input.pendapatanBulanan >= 4000000 && input.saldoRataRata >= 1500000) {
       return aktif;
     }
     return tidakAktif;
@@ -649,21 +676,20 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // POHON 41: Pekerjaan Pelajar/Mahasiswa DAN Frekuensi < 3
+  // POHON 41: Buruh/IRT/Informal (032,034,035) DAN Frekuensi < 2
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon41(NasabahInputModel input) {
-    String pekerjaanLower = input.pekerjaan.toLowerCase();
-    if ((pekerjaanLower.contains('pelajar') || pekerjaanLower.contains('mahasiswa')) && input.frekuensiTransaksi < 3) {
+    if (_isPekerjaanRentan(input) && input.frekuensiTransaksi < 2) {
       return tidakAktif;
     }
     return aktif;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 42: Pekerjaan Pegawai Swasta DAN Pendapatan >= 4jt
+  // POHON 42: Pekerjaan Stabil/Wiraswasta (005,007,009,013,026) DAN Pendapatan >= 4jt
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon42(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('swasta') && input.pendapatanBulanan >= 4000000) {
+    if ((_isPekerjaanStabil(input) || _isPekerjaanWiraswasta(input)) && input.pendapatanBulanan >= 4000000) {
       return aktif;
     }
     return tidakAktif;
@@ -690,10 +716,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // POHON 45: Saldo >= 3.5jt DAN Pendapatan >= 4jt
+  // POHON 45: Saldo >= 2jt DAN Frekuensi >= 5 (Tabungan)
   // ═══════════════════════════════════════════════════════════════════
   String _pohon45(NasabahInputModel input) {
-    if (input.saldoRataRata >= 3500000 && input.pendapatanBulanan >= 4000000) {
+    if (input.saldoRataRata >= 2000000 && input.frekuensiTransaksi >= 5) {
       return aktif;
     }
     return tidakAktif;
@@ -760,10 +786,10 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 52: Pekerjaan Pegawai Swasta DAN Frekuensi >= 5
+  // POHON 52: Pekerjaan Stabil/Wiraswasta (005,007,009,013,026) DAN Frekuensi >= 5
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon52(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('swasta') && input.frekuensiTransaksi >= 5) {
+    if ((_isPekerjaanStabil(input) || _isPekerjaanWiraswasta(input)) && input.frekuensiTransaksi >= 5) {
       return aktif;
     }
     return tidakAktif;
@@ -810,10 +836,11 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // POHON 57: Pekerjaan Tidak Bekerja DAN Saldo < 600rb
+  // POHON 57: IRT/Lain-lain (034,099) DAN Saldo < 600rb DAN Frekuensi < 3
   // ═══════════════════════════════════════════════════════════════════════════
   String _pohon57(NasabahInputModel input) {
-    if (input.pekerjaan.toLowerCase().contains('tidak bekerja') && input.saldoRataRata < 600000) {
+    String kode = _kodePekerjaan(input);
+    if ((kode == '034' || kode == '099') && input.saldoRataRata < 600000 && input.frekuensiTransaksi < 3) {
       return tidakAktif;
     }
     return aktif;
@@ -824,31 +851,31 @@ class RandomForestService {
   // ═══════════════════════════════════════════════════════════════════════════
   static List<String> getDeskripsiPohon() {
     return [
-      'Pohon 1: Fokus Frekuensi Transaksi & Saldo',
+      'Pohon 1: Frekuensi & Saldo (Tabungan: >=8+1jt atau >=12)',
       'Pohon 2: Fokus Pendapatan & Usia',
-      'Pohon 3: Fokus Lama Nasabah & Pekerjaan',
-      'Pohon 4: Fokus Saldo & Frekuensi Detail',
-      'Pohon 5: Kombinasi Pendapatan, Transaksi, Lama',
-      'Pohon 6: Fokus Usia, Gender, Pendapatan',
-      'Pohon 7: Comprehensive Score-based',
+      'Pohon 3: Lama Nasabah & Pekerjaan (kode 005,007,009,026)',
+      'Pohon 4: Saldo & Frekuensi (Tabungan: >=3jt+4x atau >=1jt+8x)',
+      'Pohon 5: Pendapatan, Transaksi, Lama (Tabungan: >=12x aktif)',
+      'Pohon 6: Usia, Gender, Pendapatan (Tabungan: threshold rendah)',
+      'Pohon 7: Score-based (pekerjaan: kode 005,007,009,013,026)',
       'Pohon 8: Saldo < 750rb & Frekuensi < 4',
-      'Pohon 9: PNS & Frekuensi >= 5',
+      'Pohon 9: Pekerjaan Stabil (005,007,009,026) & Frekuensi >= 4',
       'Pohon 10: Usia < 25 & Frekuensi < 4',
-      'Pohon 11: Pendapatan >= 5jt & Saldo >= 2jt',
-      'Pohon 12: Pegawai Tetap & Frekuensi >= 6',
-      'Pohon 13: Pelajar/Mahasiswa & Saldo < 500rb',
+      'Pohon 11: Pendapatan >= 3jt & Saldo >= 1jt (Tabungan)',
+      'Pohon 12: Pekerjaan Stabil (005,007,009,026) & Frekuensi >= 5',
+      'Pohon 13: IRT/Informal (034,035) & Saldo < 500rb & Frek < 3',
       'Pohon 14: Usia >= 50 & Frekuensi < 3',
       'Pohon 15: Lama < 1 tahun & Frekuensi < 5',
       'Pohon 16: Usia 25-40 & Frekuensi >= 6',
-      'Pohon 17: Tidak Bekerja & Frekuensi < 3',
-      'Pohon 18: Wiraswasta & Saldo >= 2.5jt',
+      'Pohon 17: IRT/Informal/Buruh (032,034,035) & Frekuensi < 3',
+      'Pohon 18: Wiraswasta (013) & Saldo >= 2.5jt',
       'Pohon 19: Frekuensi >= 8 & Saldo >= 1.5jt',
       'Pohon 20: Pendapatan >= 4jt & Frekuensi >= 5',
       'Pohon 21: Pendapatan < 3jt & Frekuensi < 4',
       'Pohon 22: Laki-laki & Frekuensi >= 7',
-      'Pohon 23: Frekuensi >= 10 & Pendapatan >= 3.5jt',
+      'Pohon 23: Frekuensi >= 8 & Pendapatan >= 2.5jt (Tabungan)',
       'Pohon 24: Frekuensi < 3 & Pendapatan < 2.5jt',
-      'Pohon 25: PNS & Frekuensi >= 5',
+      'Pohon 25: Pekerjaan Stabil (005,007,009,026) & Frekuensi >= 4',
       'Pohon 26: Saldo < 1jt & Pendapatan < 3jt',
       'Pohon 27: Usia >= 45 & Frekuensi < 4',
       'Pohon 28: Usia < 30 & Frekuensi < 5',
@@ -857,30 +884,30 @@ class RandomForestService {
       'Pohon 31: Frekuensi >= 8 & Saldo >= 1.8jt',
       'Pohon 32: Lama < 1.5 tahun & Pendapatan < 3jt',
       'Pohon 33: Lama >= 3 tahun & Pendapatan >= 3.5jt',
-      'Pohon 34: Wiraswasta & Frekuensi >= 6',
+      'Pohon 34: Wiraswasta (013) & Frekuensi >= 5',
       'Pohon 35: Usia >= 55 & Frekuensi < 4',
       'Pohon 36: Frekuensi <= 2 & Saldo < 500rb',
       'Pohon 37: Pendapatan < 2.5jt & Saldo < 750rb',
-      'Pohon 38: Pendapatan >= 5.5jt & Saldo >= 2.5jt',
+      'Pohon 38: Pendapatan >= 4jt & Saldo >= 1.5jt (Tabungan)',
       'Pohon 39: Lama < 2 tahun & Frekuensi < 4',
       'Pohon 40: Lama >= 4 tahun & Frekuensi >= 5',
-      'Pohon 41: Pelajar/Mahasiswa & Frekuensi < 3',
-      'Pohon 42: Pegawai Swasta & Pendapatan >= 4jt',
+      'Pohon 41: Buruh/IRT/Informal (032,034,035) & Frekuensi < 2',
+      'Pohon 42: Stabil/Wiraswasta (005,007,009,013,026) & Gaji >= 4jt',
       'Pohon 43: Usia >= 30 & Frekuensi >= 6',
       'Pohon 44: Saldo < 600rb & Pendapatan < 3jt',
-      'Pohon 45: Saldo >= 3.5jt & Pendapatan >= 4jt',
+      'Pohon 45: Saldo >= 2jt & Frekuensi >= 5 (Tabungan)',
       'Pohon 46: Frekuensi < 4 & Lama < 1 tahun',
       'Pohon 47: Frekuensi >= 9 & Lama >= 2 tahun',
       'Pohon 48: Frekuensi >= 6 & Saldo >= 1jt',
       'Pohon 49: Usia < 28 & Pendapatan < 3jt',
       'Pohon 50: Lama >= 2 tahun & Frekuensi >= 5',
       'Pohon 51: Saldo < 800rb & Frekuensi < 4',
-      'Pohon 52: Pegawai Swasta & Frekuensi >= 5',
+      'Pohon 52: Stabil/Wiraswasta (005,007,009,013,026) & Frek >= 5',
       'Pohon 53: Pendapatan < 2.5jt & Frekuensi <= 3',
       'Pohon 54: Usia >= 35 & Saldo >= 2jt',
       'Pohon 55: Lama < 1 tahun & Saldo < 700rb',
       'Pohon 56: Frekuensi >= 7 & Pendapatan >= 4jt',
-      'Pohon 57: Tidak Bekerja & Saldo < 600rb',
+      'Pohon 57: IRT/Lain-lain (034,099) & Saldo < 600rb & Frek < 3',
     ];
   }
 }
