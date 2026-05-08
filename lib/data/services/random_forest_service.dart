@@ -1,6 +1,6 @@
 // File: random_forest_service.dart
-// Service untuk menjalankan algoritma Random Forest dengan 7 pohon keputusan
-// 
+// Service untuk menjalankan algoritma Random Forest dengan 57 pohon keputusan
+//
 // CARA MENAMBAH/MENGURANGI POHON:
 // 1. Tambahkan method baru seperti _pohon8(), _pohon9(), dst
 // 2. Update list _semuaPohon di constructor
@@ -44,13 +44,63 @@ class RandomForestService {
 
   RandomForestService() {
     _semuaPohon = [
-      _pohon1, // Fokus: Frekuensi Transaksi & Saldo
-      _pohon2, // Fokus: Pendapatan & Usia
-      _pohon3, // Fokus: Lama Menjadi Nasabah & Pekerjaan
-      _pohon4, // Fokus: Saldo Rata-rata & Frekuensi
-      _pohon5, // Fokus: Kombinasi Pendapatan, Transaksi, Lama Nasabah
-      _pohon6, // Fokus: Usia & Jenis Kelamin & Pendapatan
-      _pohon7, // Fokus: Comprehensive - Semua Faktor
+      _pohon1,
+      _pohon2,
+      _pohon3,
+      _pohon4,
+      _pohon5,
+      _pohon6,
+      _pohon7,
+      _pohon8,
+      _pohon9,
+      _pohon10,
+      _pohon11,
+      _pohon12,
+      _pohon13,
+      _pohon14,
+      _pohon15,
+      _pohon16,
+      _pohon17,
+      _pohon18,
+      _pohon19,
+      _pohon20,
+      _pohon21,
+      _pohon22,
+      _pohon23,
+      _pohon24,
+      _pohon25,
+      _pohon26,
+      _pohon27,
+      _pohon28,
+      _pohon29,
+      _pohon30,
+      _pohon31,
+      _pohon32,
+      _pohon33,
+      _pohon34,
+      _pohon35,
+      _pohon36,
+      _pohon37,
+      _pohon38,
+      _pohon39,
+      _pohon40,
+      _pohon41,
+      _pohon42,
+      _pohon43,
+      _pohon44,
+      _pohon45,
+      _pohon46,
+      _pohon47,
+      _pohon48,
+      _pohon49,
+      _pohon50,
+      _pohon51,
+      _pohon52,
+      _pohon53,
+      _pohon54,
+      _pohon55,
+      _pohon56,
+      _pohon57,
     ];
   }
 
@@ -96,7 +146,7 @@ class RandomForestService {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
   // POHON 1: Fokus pada Frekuensi Transaksi & Saldo Rata-rata
   // ═══════════════════════════════════════════════════════════════════════════
   // Logika:
@@ -229,9 +279,9 @@ class RandomForestService {
     return tidakAktif;
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
   // POHON 7: Comprehensive - Semua Faktor dengan Bobot
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
   // Logika berbasis skor:
   // - Hitung skor dari semua faktor
   // - Skor >= 4 -> Aktif
@@ -267,6 +317,509 @@ class RandomForestService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 8: Saldo < 750rb DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon8(NasabahInputModel input) {
+    if (input.saldoRataRata < 750000 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 9: Pekerjaan PNS DAN Frekuensi >= 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon9(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('pns') && input.frekuensiTransaksi >= 5) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 10: Usia < 25 DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon10(NasabahInputModel input) {
+    if (input.usia < 25 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 11: Pendapatan >= 5jt DAN Saldo >= 2jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon11(NasabahInputModel input) {
+    if (input.pendapatanBulanan >= 5000000 && input.saldoRataRata >= 2000000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 12: Pekerjaan Pegawai Tetap DAN Frekuensi >= 6
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon12(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('tetap') && input.frekuensiTransaksi >= 6) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 13: Pekerjaan Pelajar/Mahasiswa DAN Saldo < 500rb
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon13(NasabahInputModel input) {
+    String pekerjaanLower = input.pekerjaan.toLowerCase();
+    if ((pekerjaanLower.contains('pelajar') || pekerjaanLower.contains('mahasiswa')) && input.saldoRataRata < 500000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 14: Usia >= 50 DAN Frekuensi < 3
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon14(NasabahInputModel input) {
+    if (input.usia >= 50 && input.frekuensiTransaksi < 3) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 15: Lama Nasabah < 1 tahun DAN Frekuensi < 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon15(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah < 1 && input.frekuensiTransaksi < 5) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 16: Usia 25-40 DAN Frekuensi >= 6
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon16(NasabahInputModel input) {
+    if (input.usia >= 25 && input.usia <= 40 && input.frekuensiTransaksi >= 6) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 17: Pekerjaan Tidak Bekerja DAN Frekuensi < 3
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon17(NasabahInputModel input) {
+    String pekerjaanLower = input.pekerjaan.toLowerCase();
+    if (pekerjaanLower.contains('tidak bekerja') && input.frekuensiTransaksi < 3) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 18: Pekerjaan Wiraswasta DAN Saldo >= 2.5jt
+  // ═══════════════════════════════════════════════════════════════════
+  String _pohon18(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('wiraswasta') && input.saldoRataRata >= 2500000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 19: Frekuensi >= 8 DAN Saldo >= 1.5jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon19(NasabahInputModel input) {
+    if (input.frekuensiTransaksi >= 8 && input.saldoRataRata >= 1500000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 20: Pendapatan >= 4jt DAN Frekuensi >= 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon20(NasabahInputModel input) {
+    if (input.pendapatanBulanan >= 4000000 && input.frekuensiTransaksi >= 5) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═════════════════════════════════════════════════════════════════════════��═
+  // POHON 21: Pendapatan < 3jt DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon21(NasabahInputModel input) {
+    if (input.pendapatanBulanan < 3000000 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 22: Jenis Kelamin Laki-laki DAN Frekuensi >= 7
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon22(NasabahInputModel input) {
+    if (input.jenisKelamin == 'Laki-laki' && input.frekuensiTransaksi >= 7) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 23: Frekuensi >= 10 DAN Pendapatan >= 3.5jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon23(NasabahInputModel input) {
+    if (input.frekuensiTransaksi >= 10 && input.pendapatanBulanan >= 3500000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 24: Frekuensi < 3 DAN Pendapatan < 2.5jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon24(NasabahInputModel input) {
+    if (input.frekuensiTransaksi < 3 && input.pendapatanBulanan < 2500000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 25: Pekerjaan PNS DAN Frekuensi >= 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon25(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('pns') && input.frekuensiTransaksi >= 5) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 26: Saldo < 1jt DAN Pendapatan < 3jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon26(NasabahInputModel input) {
+    if (input.saldoRataRata < 1000000 && input.pendapatanBulanan < 3000000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════���═���═════════════════════════════════════════════
+  // POHON 27: Usia >= 45 DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon27(NasabahInputModel input) {
+    if (input.usia >= 45 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 28: Usia < 30 DAN Frekuensi < 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon28(NasabahInputModel input) {
+    if (input.usia < 30 && input.frekuensiTransaksi < 5) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 29: Pendapatan >= 6jt DAN Frekuensi >= 7
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon29(NasabahInputModel input) {
+    if (input.pendapatanBulanan >= 6000000 && input.frekuensiTransaksi >= 7) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 30: Frekuensi < 5 DAN Saldo < 1.2jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon30(NasabahInputModel input) {
+    if (input.frekuensiTransaksi < 5 && input.saldoRataRata < 1200000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 31: Frekuensi >= 8 DAN Saldo >= 1.8jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon31(NasabahInputModel input) {
+    if (input.frekuensiTransaksi >= 8 && input.saldoRataRata >= 1800000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 32: Lama Nasabah < 1.5 tahun DAN Pendapatan < 3jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon32(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah < 1 && input.pendapatanBulanan < 3000000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 33: Lama Nasabah >= 3 tahun DAN Pendapatan >= 3.5jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon33(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah >= 3 && input.pendapatanBulanan >= 3500000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 34: Pekerjaan Wiraswasta DAN Frekuensi >= 6
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon34(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('wiraswasta') && input.frekuensiTransaksi >= 6) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 35: Usia >= 55 DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon35(NasabahInputModel input) {
+    if (input.usia >= 55 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 36: Frekuensi <= 2 DAN Saldo < 500rb
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon36(NasabahInputModel input) {
+    if (input.frekuensiTransaksi <= 2 && input.saldoRataRata < 500000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 37: Pendapatan < 2.5jt DAN Saldo < 750rb
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon37(NasabahInputModel input) {
+    if (input.pendapatanBulanan < 2500000 && input.saldoRataRata < 750000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 38: Pendapatan >= 5.5jt DAN Saldo >= 2.5jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon38(NasabahInputModel input) {
+    if (input.pendapatanBulanan >= 5500000 && input.saldoRataRata >= 2500000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 39: Lama Nasabah < 2 tahun DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon39(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah < 2 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 40: Lama Nasabah >= 4 tahun DAN Frekuensi >= 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon40(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah >= 4 && input.frekuensiTransaksi >= 5) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 41: Pekerjaan Pelajar/Mahasiswa DAN Frekuensi < 3
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon41(NasabahInputModel input) {
+    String pekerjaanLower = input.pekerjaan.toLowerCase();
+    if ((pekerjaanLower.contains('pelajar') || pekerjaanLower.contains('mahasiswa')) && input.frekuensiTransaksi < 3) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 42: Pekerjaan Pegawai Swasta DAN Pendapatan >= 4jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon42(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('swasta') && input.pendapatanBulanan >= 4000000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 43: Usia >= 30 DAN Frekuensi >= 6
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon43(NasabahInputModel input) {
+    if (input.usia >= 30 && input.frekuensiTransaksi >= 6) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 44: Saldo < 600rb DAN Pendapatan < 3jt
+  // ═══════════��═��═════════════════════════════════════════════════════
+  String _pohon44(NasabahInputModel input) {
+    if (input.saldoRataRata < 600000 && input.pendapatanBulanan < 3000000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 45: Saldo >= 3.5jt DAN Pendapatan >= 4jt
+  // ═══════════════════════════════════════════════════════════════════
+  String _pohon45(NasabahInputModel input) {
+    if (input.saldoRataRata >= 3500000 && input.pendapatanBulanan >= 4000000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 46: Frekuensi < 4 DAN Lama < 1 tahun
+  // ═══════════════════════════════════════════════════════════════════
+  String _pohon46(NasabahInputModel input) {
+    if (input.frekuensiTransaksi < 4 && input.lamaMenjadiNasabah < 1) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 47: Frekuensi >= 9 DAN Lama >= 2 tahun
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon47(NasabahInputModel input) {
+    if (input.frekuensiTransaksi >= 9 && input.lamaMenjadiNasabah >= 2) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 48: Frekuensi >= 6 DAN Saldo >= 1jt
+  // ═══════════════════════════════════════════════════════════════════
+  String _pohon48(NasabahInputModel input) {
+    if (input.frekuensiTransaksi >= 6 && input.saldoRataRata >= 1000000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 49: Usia < 28 DAN Pendapatan < 3jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon49(NasabahInputModel input) {
+    if (input.usia < 28 && input.pendapatanBulanan < 3000000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 50: Lama Nasabah >= 2 tahun DAN Frekuensi >= 5
+  // ═══════════════════════════════���═���═════════════════════════════════════════
+  String _pohon50(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah >= 2 && input.frekuensiTransaksi >= 5) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 51: Saldo < 800rb DAN Frekuensi < 4
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon51(NasabahInputModel input) {
+    if (input.saldoRataRata < 800000 && input.frekuensiTransaksi < 4) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 52: Pekerjaan Pegawai Swasta DAN Frekuensi >= 5
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon52(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('swasta') && input.frekuensiTransaksi >= 5) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 53: Pendapatan < 2.5jt DAN Frekuensi <= 3
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon53(NasabahInputModel input) {
+    if (input.pendapatanBulanan < 2500000 && input.frekuensiTransaksi <= 3) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 54: Usia >= 35 DAN Saldo >= 2jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon54(NasabahInputModel input) {
+    if (input.usia >= 35 && input.saldoRataRata >= 2000000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // POHON 55: Lama Nasabah < 1 tahun DAN Saldo < 700rb
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon55(NasabahInputModel input) {
+    if (input.lamaMenjadiNasabah < 1 && input.saldoRataRata < 700000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 56: Frekuensi >= 7 DAN Pendapatan >= 4jt
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon56(NasabahInputModel input) {
+    if (input.frekuensiTransaksi >= 7 && input.pendapatanBulanan >= 4000000) {
+      return aktif;
+    }
+    return tidakAktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // POHON 57: Pekerjaan Tidak Bekerja DAN Saldo < 600rb
+  // ═══════════════════════════════════════════════════════════════════════════
+  String _pohon57(NasabahInputModel input) {
+    if (input.pekerjaan.toLowerCase().contains('tidak bekerja') && input.saldoRataRata < 600000) {
+      return tidakAktif;
+    }
+    return aktif;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // HELPER: Get deskripsi semua pohon (untuk dokumentasi/debug)
   // ═══════════════════════════════════════════════════════════════════════════
   static List<String> getDeskripsiPohon() {
@@ -278,6 +831,56 @@ class RandomForestService {
       'Pohon 5: Kombinasi Pendapatan, Transaksi, Lama',
       'Pohon 6: Fokus Usia, Gender, Pendapatan',
       'Pohon 7: Comprehensive Score-based',
+      'Pohon 8: Saldo < 750rb & Frekuensi < 4',
+      'Pohon 9: PNS & Frekuensi >= 5',
+      'Pohon 10: Usia < 25 & Frekuensi < 4',
+      'Pohon 11: Pendapatan >= 5jt & Saldo >= 2jt',
+      'Pohon 12: Pegawai Tetap & Frekuensi >= 6',
+      'Pohon 13: Pelajar/Mahasiswa & Saldo < 500rb',
+      'Pohon 14: Usia >= 50 & Frekuensi < 3',
+      'Pohon 15: Lama < 1 tahun & Frekuensi < 5',
+      'Pohon 16: Usia 25-40 & Frekuensi >= 6',
+      'Pohon 17: Tidak Bekerja & Frekuensi < 3',
+      'Pohon 18: Wiraswasta & Saldo >= 2.5jt',
+      'Pohon 19: Frekuensi >= 8 & Saldo >= 1.5jt',
+      'Pohon 20: Pendapatan >= 4jt & Frekuensi >= 5',
+      'Pohon 21: Pendapatan < 3jt & Frekuensi < 4',
+      'Pohon 22: Laki-laki & Frekuensi >= 7',
+      'Pohon 23: Frekuensi >= 10 & Pendapatan >= 3.5jt',
+      'Pohon 24: Frekuensi < 3 & Pendapatan < 2.5jt',
+      'Pohon 25: PNS & Frekuensi >= 5',
+      'Pohon 26: Saldo < 1jt & Pendapatan < 3jt',
+      'Pohon 27: Usia >= 45 & Frekuensi < 4',
+      'Pohon 28: Usia < 30 & Frekuensi < 5',
+      'Pohon 29: Pendapatan >= 6jt & Frekuensi >= 7',
+      'Pohon 30: Frekuensi < 5 & Saldo < 1.2jt',
+      'Pohon 31: Frekuensi >= 8 & Saldo >= 1.8jt',
+      'Pohon 32: Lama < 1.5 tahun & Pendapatan < 3jt',
+      'Pohon 33: Lama >= 3 tahun & Pendapatan >= 3.5jt',
+      'Pohon 34: Wiraswasta & Frekuensi >= 6',
+      'Pohon 35: Usia >= 55 & Frekuensi < 4',
+      'Pohon 36: Frekuensi <= 2 & Saldo < 500rb',
+      'Pohon 37: Pendapatan < 2.5jt & Saldo < 750rb',
+      'Pohon 38: Pendapatan >= 5.5jt & Saldo >= 2.5jt',
+      'Pohon 39: Lama < 2 tahun & Frekuensi < 4',
+      'Pohon 40: Lama >= 4 tahun & Frekuensi >= 5',
+      'Pohon 41: Pelajar/Mahasiswa & Frekuensi < 3',
+      'Pohon 42: Pegawai Swasta & Pendapatan >= 4jt',
+      'Pohon 43: Usia >= 30 & Frekuensi >= 6',
+      'Pohon 44: Saldo < 600rb & Pendapatan < 3jt',
+      'Pohon 45: Saldo >= 3.5jt & Pendapatan >= 4jt',
+      'Pohon 46: Frekuensi < 4 & Lama < 1 tahun',
+      'Pohon 47: Frekuensi >= 9 & Lama >= 2 tahun',
+      'Pohon 48: Frekuensi >= 6 & Saldo >= 1jt',
+      'Pohon 49: Usia < 28 & Pendapatan < 3jt',
+      'Pohon 50: Lama >= 2 tahun & Frekuensi >= 5',
+      'Pohon 51: Saldo < 800rb & Frekuensi < 4',
+      'Pohon 52: Pegawai Swasta & Frekuensi >= 5',
+      'Pohon 53: Pendapatan < 2.5jt & Frekuensi <= 3',
+      'Pohon 54: Usia >= 35 & Saldo >= 2jt',
+      'Pohon 55: Lama < 1 tahun & Saldo < 700rb',
+      'Pohon 56: Frekuensi >= 7 & Pendapatan >= 4jt',
+      'Pohon 57: Tidak Bekerja & Saldo < 600rb',
     ];
   }
 }
