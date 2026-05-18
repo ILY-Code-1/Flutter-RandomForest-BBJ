@@ -56,6 +56,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
         success = await authController.updateUser(
           widget.user!.id,
           nama: _namaController.text,
+          email: _emailController.text,
           role: _selectedRole,
         );
       } else {
@@ -105,7 +106,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
               label: 'Email',
               hint: 'Masukkan email',
               keyboardType: TextInputType.emailAddress,
-              readOnly: isEdit, // Email tidak bisa diubah saat edit
+              readOnly: false,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Email tidak boleh kosong';

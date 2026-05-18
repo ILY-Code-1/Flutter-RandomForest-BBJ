@@ -50,7 +50,6 @@ class RiwayatPrediksiScreen extends StatelessWidget {
                   onView: () async {
                     controller.setCurrentSession(session);
                     await Get.toNamed(AppRoutes.detail);
-                    // Refresh data setelah kembali dari halaman detail
                     controller.loadSessions();
                   },
                   onDelete: isAdmin ? () {
@@ -89,8 +88,8 @@ class RiwayatPrediksiScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.1),
-                    AppColors.primary.withOpacity(0.05),
+                    AppColors.primary.withValues(alpha: 0.1),
+                    AppColors.primary.withValues(alpha: 0.05),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -130,7 +129,7 @@ class RiwayatPrediksiScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

@@ -142,10 +142,10 @@ class AuthController extends GetxController {
   }
 
   // Update user (admin only)
-  Future<bool> updateUser(String uid, {String? nama, String? role, String? password}) async {
+  Future<bool> updateUser(String uid, {String? nama, String? role, String? password, String? email}) async {
     try {
       isLoading.value = true;
-      await _authService.updateUser(uid, nama: nama, role: role, password: password);
+      await _authService.updateUser(uid, nama: nama, role: role, password: password, email: email);
       Get.snackbar(
         'Berhasil',
         'User berhasil diupdate',

@@ -1,12 +1,14 @@
 // File: pilihan_input_screen.dart
-// Screen untuk memilih metode input: Form Manual atau Upload Excel
+// Screen untuk memilih metode input: Form Manual, Upload Excel, atau Data Nasabah
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../controllers/nasabah_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../widgets/custom_app_bar.dart';
 import 'form_prediksi_screen.dart';
+import 'pilih_nasabah_prediksi_screen.dart';
 import 'upload_excel_screen.dart';
 
 class PilihanInputScreen extends StatelessWidget {
@@ -75,8 +77,8 @@ class PilihanInputScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
-              
+              const SizedBox(height: 28),
+
               // Option 1: Form Manual
               _buildOptionCard(
                 icon: Icons.edit_document,
@@ -89,8 +91,8 @@ class PilihanInputScreen extends StatelessWidget {
                   Get.to(() => const FormPrediksiScreen());
                 },
               ),
-              const SizedBox(height: 20),
-              
+              const SizedBox(height: 16),
+
               // Option 2: Upload Excel
               _buildOptionCard(
                 icon: Icons.upload_file,
@@ -103,11 +105,33 @@ class PilihanInputScreen extends StatelessWidget {
                   Get.to(() => const UploadExcelScreen());
                 },
               ),
+              const SizedBox(height: 16),
+
+              // Option 3: Data Nasabah
+              _buildOptionCard(
+                icon: Icons.people_alt,
+                title: 'Data Nasabah',
+                description: 'Gunakan data nasabah terkini dari kelola nasabah',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6A1B9A), Color(0xFF4A148C)],
+                ),
+                onTap: () {
+                  _navigateToNasabahPrediksi();
+                },
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _navigateToNasabahPrediksi() {
+    // Ensure NasabahController is registered
+    if (!Get.isRegistered<NasabahController>()) {
+      Get.put(NasabahController());
+    }
+    Get.to(() => const PilihNasabahPrediksiScreen());
   }
 
   Widget _buildOptionCard({

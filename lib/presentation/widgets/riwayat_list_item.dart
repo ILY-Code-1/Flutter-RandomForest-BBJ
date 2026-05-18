@@ -6,9 +6,9 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/prediction_model.dart';
 
-class RiwayatListItem extends StatelessWidget {
+class RiwayatListItem extends StatefulWidget {
   final PredictionSessionModel session;
-  final VoidCallback? onView;
+  final Future<void> Function()? onView;
   final VoidCallback? onDelete;
 
   const RiwayatListItem({
@@ -17,6 +17,24 @@ class RiwayatListItem extends StatelessWidget {
     this.onView,
     this.onDelete,
   });
+
+  @override
+  State<RiwayatListItem> createState() => _RiwayatListItemState();
+}
+
+class _RiwayatListItemState extends State<RiwayatListItem> {
+  bool _isViewLoading = false;
+
+  Future<void> _handleView() async {
+    if (_isViewLoading || widget.onView == null) return;
+    setState(() => _isViewLoading = true);
+    await WidgetsBinding.instance.endOfFrame;
+    try {
+      await widget.onView!();
+    } finally {
+      if (mounted) setState(() => _isViewLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +60,7 @@ class RiwayatListItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: onView,
+          onTap: _isViewLoading ? null : _handleView,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -60,7 +78,7 @@ class RiwayatListItem extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -78,7 +96,7 @@ class RiwayatListItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Prediksi #${session.flag.split('_')[1]}',
+                            'Prediksi #${widget.session.flag.split('_')[1]}',
                             style: AppTextStyles.h4.copyWith(
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary,
@@ -95,7 +113,7 @@ class RiwayatListItem extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  _formatDateTime(session.tanggalPrediksi),
+                                  _formatDateTime(widget.session.tanggalPrediksi),
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
@@ -116,9 +134,9 @@ class RiwayatListItem extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppColors.primary.withOpacity(0.1),
-                        AppColors.primary.withOpacity(0.2),
-                        AppColors.primary.withOpacity(0.1),
+                        AppColors.primary.withValues(alpha: 0.1),
+                        AppColors.primary.withValues(alpha: 0.2),
+                        AppColors.primary.withValues(alpha: 0.1),
                       ],
                     ),
                   ),
@@ -130,7 +148,7 @@ class RiwayatListItem extends StatelessWidget {
                     Expanded(
                       child: _buildStatItem(
                         Icons.people,
-                        '${session.jumlahData}',
+                        '${widget.session.jumlahData}',
                         'Total',
                         AppColors.secondary,
                       ),
@@ -143,7 +161,7 @@ class RiwayatListItem extends StatelessWidget {
                     Expanded(
                       child: _buildStatItem(
                         Icons.check_circle,
-                        '${session.prediksiBenar}',
+                        '${widget.session.prediksiBenar}',
                         'Benar',
                         Colors.green,
                       ),
@@ -156,7 +174,7 @@ class RiwayatListItem extends StatelessWidget {
                     Expanded(
                       child: _buildStatItem(
                         Icons.precision_manufacturing,
-                        '${session.akurasi.toStringAsFixed(1)}%',
+                        '${widget.session.akurasi.toStringAsFixed(1)}%',
                         'Akurasi',
                         AppColors.primary,
                       ),
@@ -170,8 +188,10 @@ class RiwayatListItem extends StatelessWidget {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, Color(0xFF1B5E20)],
+                          gradient: LinearGradient(
+                            colors: _isViewLoading
+                                ? [Colors.grey.shade400, Colors.grey.shade500]
+                                : [AppColors.primary, const Color(0xFF1B5E20)],
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -179,20 +199,25 @@ class RiwayatListItem extends StatelessWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(10),
-                            onTap: onView,
+                            onTap: _isViewLoading ? null : _handleView,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.visibility,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
+                                  if (_isViewLoading)
+                                    const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white, strokeWidth: 2),
+                                    )
+                                  else
+                                    const Icon(Icons.visibility,
+                                        color: Colors.white, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Lihat Detail',
+                                    _isViewLoading ? 'Memuat...' : 'Lihat Detail',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -205,11 +230,11 @@ class RiwayatListItem extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (onDelete != null) ...[
+                    if (widget.onDelete != null) ...[
                       const SizedBox(width: 12),
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.error.withOpacity(0.1),
+                          color: AppColors.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: AppColors.error, width: 1.5),
                         ),
@@ -217,10 +242,10 @@ class RiwayatListItem extends StatelessWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(10),
-                            onTap: onDelete,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: const Icon(
+                            onTap: widget.onDelete,
+                            child: const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Icon(
                                 Icons.delete_outline,
                                 color: AppColors.error,
                                 size: 20,
@@ -263,7 +288,7 @@ class RiwayatListItem extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime date) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
                     'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     return '${date.day} ${months[date.month - 1]} ${date.year} • ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }

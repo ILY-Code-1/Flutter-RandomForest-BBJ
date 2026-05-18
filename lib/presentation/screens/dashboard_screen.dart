@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/prediction_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/nasabah_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../routes/app_routes.dart';
@@ -19,6 +20,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<PredictionController>();
     final authController = Get.find<AuthController>();
+    final nasabahController = Get.find<NasabahController>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -41,6 +43,8 @@ class DashboardScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildRandomForestInfo(),
+                  const SizedBox(height: 16),
+                  _buildDataNasabah(nasabahController),
                   const SizedBox(height: 16),
                   _buildHasilPrediksi(controller),
                   const SizedBox(height: 16),
@@ -93,17 +97,17 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHasilPrediksi(PredictionController controller) {
+  Widget _buildDataNasabah(NasabahController nasabahController) {
     return Obx(
       () => GreenInfoCard(
-        title: 'Hasil Prediksi',
+        title: 'Data Nasabah BBJ',
         child: Row(
           children: [
             Expanded(
               child: YellowStatBox(
                 icon: Icons.person,
                 label: 'Nasabah Aktif',
-                value: controller.totalNasabahAktif.toString(),
+                value: nasabahController.jumlahAktif.toString(),
               ),
             ),
             const SizedBox(width: 12),
@@ -111,13 +115,115 @@ class DashboardScreen extends StatelessWidget {
               child: YellowStatBox(
                 icon: Icons.person_off,
                 label: 'Nasabah Pasif',
-                value: controller.totalNasabahTidakAktif.toString(),
+                value: nasabahController.jumlahPasif.toString(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: YellowStatBox(
+                icon: Icons.people,
+                label: 'Total Nasabah',
+                value: nasabahController.nasabahList.length.toString(),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildHasilPrediksi(PredictionController controller) {
+    return Obx(() {
+      final latest = controller.latestSession;
+      final canNavigate = latest != null;
+
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: canNavigate
+              ? () {
+                  controller.setCurrentSession(latest);
+                  Get.toNamed(AppRoutes.detail);
+                }
+              : null,
+          borderRadius: BorderRadius.circular(12),
+          child: GreenInfoCard(
+            title: 'Hasil Prediksi Terbaru',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (latest == null)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'Belum ada riwayat prediksi',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  )
+                else ...[
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.touch_app,
+                                color: Colors.white70, size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Ketuk untuk lihat detail',
+                              style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          latest.flag,
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 10),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: YellowStatBox(
+                          icon: Icons.person,
+                          label: 'Nasabah Aktif',
+                          value: latest.nasabahAktif.toString(),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: YellowStatBox(
+                          icon: Icons.person_off,
+                          label: 'Nasabah Pasif',
+                          value: latest.nasabahTidakAktif.toString(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildCaraKerja() {

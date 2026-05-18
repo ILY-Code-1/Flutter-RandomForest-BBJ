@@ -5,22 +5,42 @@ import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
 import '../models/prediction_model.dart';
 
 class PdfService {
   static Future<File> generatePredictionReport(PredictionSessionModel session) async {
     final pdf = pw.Document();
 
+    final fontRegular = await PdfGoogleFonts.notoSansRegular();
+    final fontBold = await PdfGoogleFonts.notoSansBold();
+    final theme = pw.ThemeData.withFont(base: fontRegular, bold: fontBold);
+
     pdf.addPage(
       pw.MultiPage(
+        theme: theme,
+        maxPages: 1000,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         header: (context) => _buildHeader(session),
         footer: (context) => _buildFooter(context),
         build: (context) => [
           _buildSummarySection(session),
+          pw.SizedBox(height: 16),
+          _buildSummaryIdSection(session),
           pw.SizedBox(height: 20),
-          _buildNasabahSection(session),
+          pw.Text(
+            'DETAIL NASABAH',
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.blue900,
+            ),
+          ),
+          pw.SizedBox(height: 12),
+          ...session.nasabahList.asMap().entries.map(
+            (entry) => _buildNasabahCard(entry.value, entry.key + 1),
+          ),
         ],
       ),
     );
@@ -209,24 +229,77 @@ class PdfService {
     );
   }
 
-  static pw.Widget _buildNasabahSection(PredictionSessionModel session) {
+  static pw.Widget _buildSummaryIdSection(PredictionSessionModel session) {
+    final aktifIds = session.nasabahList
+        .where((n) => n.finalPrediksi == 'Aktif')
+        .map((n) => n.idNasabah)
+        .toList();
+    final pasifIds = session.nasabahList
+        .where((n) => n.finalPrediksi == 'Pasif')
+        .map((n) => n.idNasabah)
+        .toList();
+    final benarIds = session.nasabahList
+        .where((n) => n.evaluasi == 'Benar')
+        .map((n) => n.idNasabah)
+        .toList();
+
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(14),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300, width: 1),
+        borderRadius: pw.BorderRadius.circular(8),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'DAFTAR ID NASABAH BERDASARKAN PREDIKSI',
+            style: pw.TextStyle(
+              fontSize: 11,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.blue900,
+            ),
+          ),
+          pw.SizedBox(height: 12),
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Expanded(child: _buildIdGroup('Prediksi Aktif (${aktifIds.length})', aktifIds, PdfColors.green800)),
+              pw.SizedBox(width: 8),
+              pw.Expanded(child: _buildIdGroup('Prediksi Pasif (${pasifIds.length})', pasifIds, PdfColors.red800)),
+              pw.SizedBox(width: 8),
+              pw.Expanded(child: _buildIdGroup('Prediksi Benar (${benarIds.length})', benarIds, PdfColors.blue800)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  static pw.Widget _buildIdGroup(String title, List<String> ids, PdfColor color) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          'DETAIL NASABAH',
-          style: pw.TextStyle(
-            fontSize: 14,
-            fontWeight: pw.FontWeight.bold,
-            color: PdfColors.blue900,
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: pw.BoxDecoration(
+            color: color,
+            borderRadius: pw.BorderRadius.circular(4),
+          ),
+          child: pw.Text(
+            title,
+            style: pw.TextStyle(
+              fontSize: 8,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.white,
+            ),
           ),
         ),
-        pw.SizedBox(height: 12),
-        ...session.nasabahList.asMap().entries.map((entry) {
-          final index = entry.key;
-          final nasabah = entry.value;
-          return _buildNasabahCard(nasabah, index + 1);
-        }),
+        pw.SizedBox(height: 6),
+        pw.Text(
+          ids.isEmpty ? '-' : ids.join(', '),
+          style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey800),
+        ),
       ],
     );
   }
@@ -317,8 +390,8 @@ class PdfService {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     _buildDataRow('Frekuensi Transaksi', '${nasabah.frekuensiTransaksi}x/bulan'),
-                    _buildDataRow('Saldo Rata-rata', 'Rp ${_formatNumber(nasabah.saldoRataRata)}'),
-                    _buildDataRow('Lama Nasabah', '${nasabah.lamaMenjadiNasabah} tahun'),
+                    _buildDataRow('Saldo Rata-rata', 'Rp ${_formatNumber(nasabah.saldoRataRata)}/bln'),
+                    _buildDataRow('Lama Nasabah', '${nasabah.lamaMenjadiNasabah} bulan'),
                   ],
                 ),
               ),

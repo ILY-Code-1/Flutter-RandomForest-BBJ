@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../controllers/prediction_controller.dart';
 import '../controllers/navigation_controller.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/nasabah_controller.dart';
 import '../presentation/screens/login_screen.dart';
 import '../presentation/screens/main_screen.dart';
 import '../presentation/screens/detail_prediksi_screen.dart';
@@ -14,6 +15,9 @@ import '../presentation/screens/upload_excel_screen.dart';
 import '../presentation/screens/users_screen.dart';
 import '../presentation/screens/add_edit_user_screen.dart';
 import '../presentation/screens/follow_up_screen.dart';
+import '../presentation/screens/kelola_nasabah_screen.dart';
+import '../presentation/screens/add_edit_nasabah_screen.dart';
+import '../presentation/screens/pilih_nasabah_prediksi_screen.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -34,6 +38,7 @@ class AppPages {
         Get.lazyPut<AuthController>(() => AuthController());
         Get.lazyPut<PredictionController>(() => PredictionController());
         Get.lazyPut<NavigationController>(() => NavigationController());
+        Get.lazyPut<NasabahController>(() => NasabahController());
       }),
     ),
     GetPage(
@@ -62,13 +67,27 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.editUser,
-      page: () => AddEditUserScreen(
-        user: Get.arguments,
-      ),
+      page: () => AddEditUserScreen(user: Get.arguments),
     ),
     GetPage(
       name: AppRoutes.followUp,
       page: () => const FollowUpScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.kelolaNasabah,
+      page: () => const KelolaNasabahScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.addNasabah,
+      page: () => const AddEditNasabahScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.editNasabah,
+      page: () => AddEditNasabahScreen(nasabah: Get.arguments),
+    ),
+    GetPage(
+      name: AppRoutes.pilihNasabah,
+      page: () => const PilihNasabahPrediksiScreen(),
     ),
   ];
 }

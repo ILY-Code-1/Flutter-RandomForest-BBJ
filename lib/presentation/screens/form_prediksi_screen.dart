@@ -195,8 +195,8 @@ class FormPrediksiScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           CustomTextField(
-            label: 'Saldo Rata-Rata',
-            hint: 'Masukkan saldo rata-rata',
+            label: 'Saldo Rata-Rata (Rp/bulan)',
+            hint: 'Masukkan saldo rata-rata per bulan',
             controller: controller.saldoController,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -213,8 +213,8 @@ class FormPrediksiScreen extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 16),
           CustomTextField(
-            label: 'Lama Menjadi Nasabah',
-            hint: 'Masukkan lama menjadi nasabah (tahun)',
+            label: 'Lama Menjadi Nasabah (bulan)',
+            hint: 'Masukkan lama menjadi nasabah (bulan)',
             controller: controller.lamaController,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],

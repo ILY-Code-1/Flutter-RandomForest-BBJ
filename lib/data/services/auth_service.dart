@@ -143,12 +143,25 @@ class AuthService {
     String? nama,
     String? role,
     String? password,
+    String? email,
   }) async {
     try {
+      if (email != null) {
+        final existing = await _firestore
+            .collection(usersCollection)
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+        if (existing.docs.isNotEmpty && existing.docs.first.id != uid) {
+          throw Exception('Email sudah digunakan oleh user lain');
+        }
+      }
+
       final updates = <String, dynamic>{};
       if (nama != null) updates['nama'] = nama;
       if (role != null) updates['role'] = role;
       if (password != null) updates['password'] = password;
+      if (email != null) updates['email'] = email;
 
       await _firestore.collection(usersCollection).doc(uid).update(updates);
     } catch (e) {

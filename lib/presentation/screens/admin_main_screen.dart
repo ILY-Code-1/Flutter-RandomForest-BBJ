@@ -1,5 +1,5 @@
 // File: admin_main_screen.dart
-// Main screen untuk admin (Home, Riwayat, dan FAB untuk tambah prediksi)
+// Main screen untuk admin (Home, Riwayat, Kelola User, Kelola Nasabah)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_randomdforest_bbj/presentation/screens/users_screen.dart';
@@ -9,6 +9,7 @@ import '../../controllers/prediction_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../routes/app_routes.dart';
 import 'dashboard_screen.dart';
+import 'kelola_nasabah_screen.dart';
 import 'riwayat_prediksi_screen.dart';
 
 class AdminMainScreen extends StatelessWidget {
@@ -23,6 +24,7 @@ class AdminMainScreen extends StatelessWidget {
       const DashboardScreen(),
       const RiwayatPrediksiScreen(),
       const UsersScreen(),
+      const KelolaNasabahScreen(),
     ];
 
     return Scaffold(
@@ -38,7 +40,7 @@ class AdminMainScreen extends StatelessWidget {
           Get.toNamed(AppRoutes.pilihanInput);
         },
         backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white, size: 24),
+        child: const Icon(Icons.rocket_launch, color: Colors.white, size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Obx(() => _buildBottomNavBar(navigationController)),
@@ -59,23 +61,27 @@ class AdminMainScreen extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Home Button
               _buildNavItem(
                 icon: Icons.home,
                 label: 'Beranda',
                 isSelected: navigationController.currentIndex.value == 0,
                 onTap: () => navigationController.changePage(0),
               ),
-              // History Button
               _buildNavItem(
                 icon: Icons.access_time,
                 label: 'Riwayat',
                 isSelected: navigationController.currentIndex.value == 1,
                 onTap: () => navigationController.changePage(1),
+              ),
+              _buildNavItem(
+                icon: Icons.account_box_outlined,
+                label: 'Kelola Nasabah',
+                isSelected: navigationController.currentIndex.value == 3,
+                onTap: () => navigationController.changePage(3),
               ),
               _buildNavItem(
                 icon: Icons.people_alt_outlined,
@@ -100,20 +106,20 @@ class AdminMainScreen extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
               color: isSelected ? AppColors.primary : AppColors.textSecondary,
-              size: 26,
+              size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 color: isSelected ? AppColors.primary : AppColors.textSecondary,
               ),

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:excel/excel.dart';
 import 'dart:io';
+import '../data/models/nasabah_bbj_model.dart';
 import '../data/models/prediction_model.dart';
 import '../data/services/firestore_service.dart';
 import '../data/services/random_forest_service.dart';
@@ -45,6 +46,9 @@ class PredictionController extends GetxController {
       Rx<PredictionSessionModel?>(null);
 
   int get totalSessions => predictionSessions.length;
+
+  PredictionSessionModel? get latestSession =>
+      predictionSessions.isNotEmpty ? predictionSessions.first : null;
 
   int get totalNasabahAktif {
     int count = 0;
@@ -829,5 +833,77 @@ class PredictionController extends GetxController {
   void clearExcelData() {
     excelFileName.value = '';
     excelData.clear();
+  }
+
+  Future<void> submitPredictionFromNasabah(List<NasabahBBJModel> selectedNasabah) async {
+    if (selectedNasabah.isEmpty) {
+      _showError('Pilih minimal 1 nasabah terlebih dahulu');
+      return;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final now = DateTime.now();
+      final sessionId = now.millisecondsSinceEpoch.toString();
+
+      List<NasabahModel> hasilPrediksi = [];
+
+      for (int i = 0; i < selectedNasabah.length; i++) {
+        final nasabah = selectedNasabah[i];
+
+        final input = NasabahInputModel(
+          usia: nasabah.usia,
+          jenisKelamin: nasabah.jenisKelamin,
+          pekerjaan: nasabah.pekerjaan,
+          pendapatanBulanan: nasabah.pendapatanBulanan,
+          frekuensiTransaksi: nasabah.frekuensiTransaksi,
+          saldoRataRata: nasabah.saldoRataRata,
+          lamaMenjadiNasabah: nasabah.lamaMenjadiNasabah,
+          statusNasabah: nasabah.statusNasabah,
+        );
+
+        final id = '${sessionId}_$i';
+        final hasil = _rfService.predict(input, id, nasabah.idNasabah);
+        hasilPrediksi.add(hasil);
+      }
+
+      int benar = hasilPrediksi.where((n) => n.evaluasi == 'Benar').length;
+      double akurasi = (benar / hasilPrediksi.length) * 100;
+
+      final authController = Get.isRegistered<AuthController>()
+          ? Get.find<AuthController>()
+          : null;
+      final currentUser = authController?.currentUser.value;
+
+      final session = PredictionSessionModel(
+        id: sessionId,
+        tanggalPrediksi: now,
+        nasabahList: hasilPrediksi,
+        akurasi: akurasi,
+        createdBy: currentUser?.id ?? '',
+        assignedUserIds: [],
+        comments: [],
+      );
+
+      await _firestoreService.savePredictionSession(session);
+      predictionSessions.insert(0, session);
+      currentSession.value = session;
+
+      Get.snackbar(
+        'Berhasil',
+        'Prediksi berhasil dengan akurasi ${akurasi.toStringAsFixed(1)}%',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+
+      Get.toNamed(AppRoutes.detail);
+    } catch (e) {
+      _showError('Gagal menyimpan prediksi: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

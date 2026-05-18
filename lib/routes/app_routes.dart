@@ -17,4 +17,8 @@ class AppRoutes {
   static const String editUser = '/edit-user';
   static const String comments = '/comments';
   static const String followUp = '/follow-up';
+  static const String kelolaNasabah = '/kelola-nasabah';
+  static const String addNasabah = '/add-nasabah';
+  static const String editNasabah = '/edit-nasabah';
+  static const String pilihNasabah = '/pilih-nasabah';
 }
